@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>ManagedEsent</id>
+    <version>1.6</version>
+    <title>ManagedEsent</title>
+    <authors>martinc</authors>
+    <owners>martinc</owners>
+    <licenseUrl>http://managedesent.codeplex.com/license</licenseUrl>
+    <projectUrl>http://managedesent.codeplex.com/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>ManagedEsent provides managed access to ESENT, the embeddable
+      database engine native to Windows. ManagedEsent uses the esent.dll that is
+      part of Microsoft Windows so there are no extra unmanaged binaries to
+      download and install.</description>
+    <summary>ManagedEsent provides managed access to ESENT, the embeddable
+      database engine native to Windows. ManagedEsent uses the esent.dll that is
+      part of Microsoft Windows so there are no extra unmanaged binaries to
+      download and install.</summary>
+    <copyright>Copyright 2011</copyright>
+    <tags>ManagedEsent NoSql ISAM</tags>
+  </metadata>
+</package>
