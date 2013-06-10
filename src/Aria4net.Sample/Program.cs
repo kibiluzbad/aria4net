@@ -25,14 +25,16 @@ namespace Aria4net.Sample
                 {
                     Executable = Path.Combine(appRoot, "tools\\aria2-1.16.3-win-32bit-build1\\aria2c.exe"),
                     Id = Guid.NewGuid().ToString(),
-                    JsonrpcUrl = "http://localhost:6800/jsonrpc",
+                    JsonrpcUrl = "http://localhost:6868/jsonrpc",
                     JsonrpcVersion = "2.0",
-                    WebSocketUrl = "ws://localhost:6800/jsonrpc"
+                    WebSocketUrl = "ws://localhost:6868/jsonrpc",
+                    Port = 7000,
+                    RpcPort = 6868
                 };
 
             IServer server = new Aria2cServer(
                 new Aria2cProcessStarter(
-                    new Aria2cFinder(config)) {DownloadedFilesDirPath = "c:\\temp"});
+                    new Aria2cFinder(config), config) {DownloadedFilesDirPath = "c:\\temp"});
 
             server.Start();
 
@@ -46,12 +48,14 @@ namespace Aria4net.Sample
             var url =
                 "ftp://download.warface.levelupgames.com.br/Warface/Installer/Instalador_Client_LevelUp_1.0.34.006.torrent";
 
+            var gid = "";
+
             client.DownloadProgress += (sender, e) =>
                 {
-                    if (url == e.Url)
+                    if (gid == e.Gid)
                     {
                         Console.Clear();
-                        Console.Write(
+                        Console.WriteLine(
                             "\rStatus {5} | Progress {0:N0} % | Speed {1:N2} Mb/s | Eta {2:N0} m | Downloaded {3:N2}  Mb | Remaining {6:N2} Mb | Total {4:N2} Mb",
                             e.Progress, e.Speed.ToMegaBytes(), new TimeSpan(0, 0, (int) e.Eta).TotalMinutes,
                             e.Downloaded.ToMegaBytes(), e.Total.ToMegaBytes(), e.Status,
@@ -60,21 +64,9 @@ namespace Aria4net.Sample
                 };
 
             
-            var gid = client.AddTorrent(url);
+            gid = client.AddTorrent(url);
 
-            Thread.Sleep(5000);
-
-            client.Stop(gid);
-
-            Thread.Sleep(5000);
-            
-            client.Remove(gid);
-
-            Thread.Sleep(5000);
-
-            client.Purge();
-
-            Console.Read();
+            Console.ReadKey();
 
             server.Stop();
         }

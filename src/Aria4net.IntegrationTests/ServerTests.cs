@@ -24,14 +24,14 @@ namespace Aria4net.IntegrationTests
         {
             string appRoot = @"C:\work\aria4net";
 
+            var config = new Aria2cConfig
+                {
+                    Executable = Path.Combine(appRoot, "tools\\aria2-1.16.3-win-32bit-build1\\aria2c.exe")
+                };
 
             IServer server = new Aria2cServer(
                 new Aria2cProcessStarterWithWindow(
-                    new Aria2cFinder(
-                        new Aria2cConfig
-                            {
-                                Executable = Path.Combine(appRoot, "tools\\aria2-1.16.3-win-32bit-build1\\aria2c.exe")
-                            })));
+                    new Aria2cFinder(config), config));
 
             server.Start();
 
@@ -59,7 +59,7 @@ namespace Aria4net.IntegrationTests
 
             IServer server = new Aria2cServer(
                 new Aria2cProcessStarterWithWindow(
-                    new Aria2cFinder(config)) {DownloadedFilesDirPath = "c:\\temp"});
+                    new Aria2cFinder(config), config) {DownloadedFilesDirPath = "c:\\temp"});
 
             server.Start();
 
@@ -79,7 +79,7 @@ namespace Aria4net.IntegrationTests
 
     internal class Aria2cProcessStarterWithWindow : Aria2cProcessStarter
     {
-        public Aria2cProcessStarterWithWindow(IFileFinder fileFinder) : base(fileFinder)
+        public Aria2cProcessStarterWithWindow(IFileFinder fileFinder, Aria2cConfig config) : base(fileFinder, config)
         {
         }
 

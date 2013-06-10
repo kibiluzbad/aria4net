@@ -18,12 +18,13 @@ namespace Aria4net.Tests
         public void When_calling_Run_should_call_Find_in_IFileFinder()
         {
             var mockFileFinder = new Mock<IFileFinder>();
+            var config = new Aria2cConfig {Port = 7000};
 
             mockFileFinder
                 .Setup(c => c.Find())
                 .Returns(Environment.SystemDirectory + "\\notepad.exe");
 
-            IProcessStarter processStarter = new Aria2cProcessStarter(mockFileFinder.Object)
+            IProcessStarter processStarter = new Aria2cProcessStarter(mockFileFinder.Object, config)
                 {
                     DownloadedFilesDirPath = Assembly.GetExecutingAssembly().Location
                 };
@@ -37,12 +38,13 @@ namespace Aria4net.Tests
         public void Can_exit_process()
         {
             var fakeFileFinder = new Mock<IFileFinder>();
+            var config = new Aria2cConfig { Port = 7000 };
 
             fakeFileFinder
                 .Setup(c => c.Find())
                 .Returns(Environment.SystemDirectory + "\\notepad.exe");
 
-            IProcessStarter processStarter = new Aria2cProcessStarter(fakeFileFinder.Object)
+            IProcessStarter processStarter = new Aria2cProcessStarter(fakeFileFinder.Object, config)
             {
                 DownloadedFilesDirPath = Assembly.GetExecutingAssembly().Location
             };
