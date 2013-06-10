@@ -34,10 +34,10 @@ namespace Aria4net.Tests
 
             fakeRestResponse.Setup(c => c.StatusCode)
                 .Returns(HttpStatusCode.OK);
-            fakeRestResponse.Setup(c => c.Data)
-                .Returns(new Aria2cResult<string> { Id = sessionId, Jsonrpc = jsonrpcVersion, Result = "2089b05ecca3d829" });
+            fakeRestResponse.Setup(c => c.Content)
+                .Returns(JsonConvert.SerializeObject(new Aria2cResult<string> { Id = sessionId, Jsonrpc = jsonrpcVersion, Result = "2089b05ecca3d829" }));
 
-            mockRestClient.Setup(c => c.Execute<Aria2cResult<string>>(It.IsAny<IRestRequest>()))
+            mockRestClient.Setup(c => c.Execute(It.IsAny<IRestRequest>()))
                           .Returns(fakeRestResponse.Object);
 
             IClient client = new Aria2cJsonRpcClient(mockRestClient.Object,
@@ -53,7 +53,7 @@ namespace Aria4net.Tests
 
             client.AddUrl(url);
 
-            mockRestClient.Verify(c => c.Execute<Aria2cResult<string>>(It.IsAny<IRestRequest>()),
+            mockRestClient.Verify(c => c.Execute(It.IsAny<IRestRequest>()),
                                   Times.Once());
         }
 
@@ -65,17 +65,17 @@ namespace Aria4net.Tests
             var sessionId = Guid.NewGuid().ToString();
 
             var fakeRestClient = new Mock<IRestClient>();
-            var fakeRestResponse = new Mock<IRestResponse<Aria2cResult<string>>>();
+            var fakeRestResponse = new Mock<IRestResponse>();
             var mockDownloadQueue = new Mock<IDictionary<string, Aria2cResult<string>>>();
             var fakeServerWatcher = new Mock<IServerWatcher>();
             var fakeLogger = new Mock<Logger>();
 
             fakeRestResponse.Setup(c => c.StatusCode)
                 .Returns(HttpStatusCode.OK);
-            fakeRestResponse.Setup(c => c.Data)
-                .Returns(new Aria2cResult<string> { Id = sessionId, Jsonrpc = jsonrpcVersion, Result = "2089b05ecca3d829" });
+            fakeRestResponse.Setup(c => c.Content)
+                .Returns(JsonConvert.SerializeObject(new Aria2cResult<string> { Id = sessionId, Jsonrpc = jsonrpcVersion, Result = "2089b05ecca3d829" }));
 
-            fakeRestClient.Setup(c => c.Execute<Aria2cResult<string>>(It.IsAny<IRestRequest>()))
+            fakeRestClient.Setup(c => c.Execute(It.IsAny<IRestRequest>()))
                           .Returns(fakeRestResponse.Object);
 
             IClient client = new Aria2cJsonRpcClient(fakeRestClient.Object,
@@ -103,17 +103,17 @@ namespace Aria4net.Tests
             var sessionId = Guid.NewGuid().ToString();
 
             var fakeRestClient = new Mock<IRestClient>();
-            var fakeRestResponse = new Mock<IRestResponse<Aria2cResult<string>>>();
+            var fakeRestResponse = new Mock<IRestResponse>();
             var fakeDownloadQueue = new Mock<IDictionary<string, Aria2cResult<string>>>();
             var mockServerWatcher = new Mock<IServerWatcher>();
             var fakeLogger = new Mock<Logger>();
 
             fakeRestResponse.Setup(c => c.StatusCode)
                 .Returns(HttpStatusCode.OK);
-            fakeRestResponse.Setup(c => c.Data)
-                .Returns(new Aria2cResult<string> { Id = sessionId, Jsonrpc = jsonrpcVersion, Result = "2089b05ecca3d829" });
+            fakeRestResponse.Setup(c => c.Content)
+                .Returns(JsonConvert.SerializeObject(new Aria2cResult<string> { Id = sessionId, Jsonrpc = jsonrpcVersion, Result = "2089b05ecca3d829" }));
 
-            fakeRestClient.Setup(c => c.Execute<Aria2cResult<string>>(It.IsAny<IRestRequest>()))
+            fakeRestClient.Setup(c => c.Execute(It.IsAny<IRestRequest>()))
                           .Returns(fakeRestResponse.Object);
 
             IClient client = new Aria2cJsonRpcClient(fakeRestClient.Object,
@@ -130,7 +130,7 @@ namespace Aria4net.Tests
             client.AddUrl(url);
 
             mockServerWatcher.Verify(c => c.Subscribe(It.IsAny<string>(), It.IsAny<Action<string>>()), 
-                Times.Once());
+                Times.Exactly(4));
         }
     }
 }
