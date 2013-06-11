@@ -7,10 +7,4 @@
         public TResult Result { get; set; }
         public Aria2cError Error { get; set; }
     }
-
-    public class Aria2cError
-    {
-        public int Code { get; set; }
-        public string Message { get; set; }
-    }
 }

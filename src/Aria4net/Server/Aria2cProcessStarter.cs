@@ -27,16 +27,7 @@ namespace Aria4net.Server
 
         protected override string GetArguments()
         {
-            return string.Format("--enable-rpc --dir={0} -c --listen-port={1} --rpc-listen-port={2} {3}", DownloadedFilesDirPath.Trim(), _config.Port, _config.RpcPort, _config.OtherParameters);
+            return string.Format("--enable-rpc --dir={0} -c --listen-port={1} --rpc-listen-port={2} --bt-remove-unselected-file", DownloadedFilesDirPath.Trim(), _config.Port, _config.RpcPort);
         }
-    }
-
-    public class Aria2cException : ApplicationException
-    {
-        public Aria2cException(int exitCode, string message)
-            :base(string.Format("Código do erro {0}. {1}",exitCode,message))
-        {
-            
-        }
-    }
+   }
 }

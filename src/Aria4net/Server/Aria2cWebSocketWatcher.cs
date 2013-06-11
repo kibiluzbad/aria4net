@@ -14,11 +14,11 @@ namespace Aria4net.Server
         private readonly Aria2cConfig _config;
         private readonly Logger _logger;
         private readonly WebSocket _socket;
-        private readonly IDictionary<string, IList<Action<string>>> _actions;
+        private readonly IDictionary<string, IDictionary<Guid,Action<string>>> _actions;
 
         private volatile object _sync = new object();
 
-        public IDictionary<string, IList<Action<string>>> Actions
+        public IDictionary<string, IDictionary<Guid, Action<string>>> Actions
         {
             get { return _actions; }
         }
@@ -28,7 +28,7 @@ namespace Aria4net.Server
             _config = config;
             _logger = logger;
             _socket = new WebSocket(_config.WebSocketUrl);
-            _actions = new Dictionary<string, IList<Action<string>>>();
+            _actions = new Dictionary<string, IDictionary<Guid, Action<string>>>();
 
             AttachEvents();
         }
@@ -71,7 +71,7 @@ namespace Aria4net.Server
                 _logger.Info("Invoking action for {0}.", message.Method);
 
                 var aria2cParameter = message.Params.FirstOrDefault();
-                if (aria2cParameter != null) action(aria2cParameter.Gid);
+                if (aria2cParameter != null) action.Value(aria2cParameter.Gid);
             }
         }
 
@@ -81,17 +81,62 @@ namespace Aria4net.Server
             return this;
         }
 
-        public virtual void Subscribe(string method, Action<string> action)
+        public virtual Guid Subscribe(string method, Action<string> action)
+        {
+            lock (_sync)
+            {
+                var key = Guid.NewGuid();
+
+                if (Actions.ContainsKey(method))
+                {
+                    Actions[method].Add(key,action);
+                }
+                else
+                {
+                    Actions[method] = new Dictionary<Guid, Action<string>>
+                        {
+                            {key,action}
+                        };
+                }
+                return key;
+            }
+        }
+
+        public virtual void Unsubscribe(string method, Guid key)
+        {
+            lock (_sync)
+            {
+                if (Actions.ContainsKey(method) &&
+                    Actions[method].ContainsKey(key))
+                {
+                    Actions[method].Remove(key);
+                }
+            }
+        }
+
+        public virtual void Unsubscribe(string method)
         {
             lock (_sync)
             {
                 if (Actions.ContainsKey(method))
                 {
-                    Actions[method].Add(action);
+                    Actions.Remove(method);
                 }
-                else
+            }
+        }
+
+        public virtual void Unsubscribe(Queue<Guid> keys)
+        {
+            lock (_sync)
+            {
+                while (0 < keys.Count)
                 {
-                    Actions[method] = new List<Action<string>> {action};
+                    var key = keys.Dequeue();
+
+                    foreach (var action in Actions.Where(c => c.Value.ContainsKey(key)))
+                    {
+                        action.Value.Remove(key);
+                    }
                 }
             }
         }

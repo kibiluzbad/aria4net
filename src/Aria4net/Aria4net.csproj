@@ -52,9 +52,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client\Aria2cBittorrent.cs" />
+    <Compile Include="Client\Aria2cClientEventArgs.cs" />
+    <Compile Include="Client\Aria2cDownloadStatus.cs" />
+    <Compile Include="Client\Aria2cFile.cs" />
+    <Compile Include="Client\Aria2cInfo.cs" />
     <Compile Include="Client\Aria2cJsonRpcClient.cs" />
+    <Compile Include="Client\Aria2cUri.cs" />
+    <Compile Include="Common\Aria2cError.cs" />
     <Compile Include="Common\Aria2cResult.cs" />
     <Compile Include="Client\IClient.cs" />
+    <Compile Include="Server\Aria2cException.cs" />
     <Compile Include="Server\Aria2cParameter.cs" />
     <Compile Include="Server\Aria2cWebSocketMessage.cs" />
     <Compile Include="Server\Aria2cWebSocketWatcher.cs" />

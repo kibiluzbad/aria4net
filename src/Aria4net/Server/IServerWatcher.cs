@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Aria4net.Server
 {
     public interface IServerWatcher
     {
-        void Subscribe(string method, Action<string> action);
+        Guid Subscribe(string method, Action<string> action);
+        void Unsubscribe(Queue<Guid> keys);
+        void Unsubscribe(string method);
+        void Unsubscribe(string method, Guid key);
         IServerWatcher Connect();
     }
 }

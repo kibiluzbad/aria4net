@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -45,26 +46,48 @@ namespace Aria4net.Sample
                                                                                 logger).Connect(),
                                                      logger);
 
-            var url =
+            var url1 =
                 "ftp://download.warface.levelupgames.com.br/Warface/Installer/Instalador_Client_LevelUp_1.0.34.006.torrent";
+            var url2 = "http://download.levelupgames.com.br/Warface/Installer/Instalador_Patch_LevelUp_1.0.34.010.torrent";
 
-            var gid = "";
+            var gid1 = "";
+            var gid2 = "";
 
-            client.DownloadProgress += (sender, e) =>
+            client.DownloadStarted += (sender, eventArgs) => Console.WriteLine("Download iniciado {0}", eventArgs.Status.Gid);
+            client.DownloadProgress += (sender, e) => Console.WriteLine(
+                "\r{7} Status {5} | Progress {0:N1} % | Speed {1:N2} Mb/s | Eta {2:N0} s | Downloaded {3:N2}  Mb | Remaining {6:N2} Mb | Total {4:N2} Mb",
+                e.Status.Progress, 
+                e.Status.DownloadSpeed.ToMegaBytes(), 
+                e.Status.Eta,
+                e.Status.CompletedLength.ToMegaBytes(), 
+                e.Status.TotalLength.ToMegaBytes(), 
+                e.Status.Status,
+                (e.Status.Remaining).ToMegaBytes(),
+                e.Status.Gid);
+            
+            client.DownloadCompleted += (sender, eventArgs) =>
                 {
-                    if (gid == e.Gid)
+                    Console.WriteLine("Download concluido {0}", eventArgs.Status.Gid);
+                    using (var process = new Process())
                     {
-                        Console.Clear();
-                        Console.WriteLine(
-                            "\rStatus {5} | Progress {0:N0} % | Speed {1:N2} Mb/s | Eta {2:N0} m | Downloaded {3:N2}  Mb | Remaining {6:N2} Mb | Total {4:N2} Mb",
-                            e.Progress, e.Speed.ToMegaBytes(), new TimeSpan(0, 0, (int) e.Eta).TotalMinutes,
-                            e.Downloaded.ToMegaBytes(), e.Total.ToMegaBytes(), e.Status,
-                            (e.Total - e.Downloaded).ToMegaBytes());
+                        process.StartInfo.FileName =
+                            eventArgs.Status.Files.FirstOrDefault(c => Path.GetExtension(c.Path) == ".exe").Path;
+                        process.Start();
                     }
                 };
-
+            client.DownloadError += (sender, e) =>
+                {
+                    foreach (var file in e.Status.Files)
+                    {
+                        if(File.Exists(file.Path))
+                        {
+                            File.Delete(file.Path);
+                        }
+                    }
+                };
             
-            gid = client.AddTorrent(url);
+            gid1 = client.AddTorrent(url1);
+            gid2 = client.AddTorrent(url2);
 
             Console.ReadKey();
 

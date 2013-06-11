@@ -16,6 +16,7 @@ namespace Aria4net.Client
 
         event EventHandler<Aria2cClientEventArgs> DownloadCompleted;
         event EventHandler<Aria2cClientEventArgs> DownloadPaused;
+        event EventHandler<Aria2cClientEventArgs> DownloadError;
         event EventHandler<Aria2cClientEventArgs> DownloadStoped;
         event EventHandler<Aria2cClientEventArgs> DownloadStarted;
         event EventHandler<Aria2cClientEventArgs> DownloadProgress;

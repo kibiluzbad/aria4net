@@ -130,7 +130,7 @@ namespace Aria4net.Tests
             client.AddUrl(url);
 
             mockServerWatcher.Verify(c => c.Subscribe(It.IsAny<string>(), It.IsAny<Action<string>>()), 
-                Times.Exactly(4));
+                Times.Exactly(5));
         }
     }
 }
