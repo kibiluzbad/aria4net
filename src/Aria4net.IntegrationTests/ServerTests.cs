@@ -24,6 +24,8 @@ namespace Aria4net.IntegrationTests
         {
             string appRoot = @"C:\work\aria4net";
 
+            var logger = LogManager.GetCurrentClassLogger();
+
             var config = new Aria2cConfig
                 {
                     Executable = Path.Combine(appRoot, "tools\\aria2-1.16.3-win-32bit-build1\\aria2c.exe")
@@ -31,7 +33,10 @@ namespace Aria4net.IntegrationTests
 
             IServer server = new Aria2cServer(
                 new Aria2cProcessStarterWithWindow(
-                    new Aria2cFinder(config), config));
+                    new Aria2cFinder(config), config, logger),
+                    new DefaultValidationRunner(), 
+                    config,
+                    logger);
 
             server.Start();
 
@@ -44,6 +49,7 @@ namespace Aria4net.IntegrationTests
         public void Add_download()
         {
             string appRoot = @"C:\work\aria4net";
+            
 
             IDictionary<string, Aria2cResult<string>> downloadHistory = new Dictionary<string, Aria2cResult<string>>();
             var logger = LogManager.GetCurrentClassLogger();
@@ -59,7 +65,10 @@ namespace Aria4net.IntegrationTests
 
             IServer server = new Aria2cServer(
                 new Aria2cProcessStarterWithWindow(
-                    new Aria2cFinder(config), config) {DownloadedFilesDirPath = "c:\\temp"});
+                    new Aria2cFinder(config), config, logger) {DownloadedFilesDirPath = "c:\\temp"},
+                    new DefaultValidationRunner(), 
+                    config,
+                    logger);
 
             server.Start();
 
@@ -79,7 +88,7 @@ namespace Aria4net.IntegrationTests
 
     internal class Aria2cProcessStarterWithWindow : Aria2cProcessStarter
     {
-        public Aria2cProcessStarterWithWindow(IFileFinder fileFinder, Aria2cConfig config) : base(fileFinder, config)
+        public Aria2cProcessStarterWithWindow(IFileFinder fileFinder, Aria2cConfig config, Logger logger) : base(fileFinder, config, logger)
         {
         }
 

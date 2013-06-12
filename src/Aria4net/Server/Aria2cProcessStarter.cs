@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using Aria4net.Common;
+using NLog;
 
 namespace Aria4net.Server
 {
@@ -9,25 +10,40 @@ namespace Aria4net.Server
         private readonly Aria2cConfig _config;
         public string DownloadedFilesDirPath { get; set; }
         
-        public Aria2cProcessStarter(IFileFinder fileFinder, Aria2cConfig config) : base(fileFinder)
+        public Aria2cProcessStarter(IFileFinder fileFinder, Aria2cConfig config, Logger logger) : base(fileFinder, logger)
         {
             _config = config;
         }
 
+        public override bool IsRunning()
+        {
+            var pname = Process.GetProcessesByName("aria2c");
+            return (0 < pname.Length);
+        }
+
         protected override void ProcessOnExited(Process sender, EventArgs eventArgs)
         {
-            if (0 < sender.ExitCode) 
-                throw new Aria2cException(sender.ExitCode, sender.StandardError.ReadToEnd());
+            try
+            {
+               Logger.Info("Processo executou com código {0}.", sender.ExitCode);
+                if (0 <= sender.ExitCode)
+                    throw new Aria2cException(sender.ExitCode, sender.StandardError.ReadToEnd());
+
+            }
+            catch (InvalidOperationException) // Ignore if process is not running
+            { }
         }
 
         protected override void ConfigureProcess(Process process)
         {
+            Logger.Info("Configurando processo.");
             process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
         }
 
         protected override string GetArguments()
         {
-            return string.Format("--enable-rpc --dir={0} -c --listen-port={1} --rpc-listen-port={2} --bt-remove-unselected-file", DownloadedFilesDirPath.Trim(), _config.Port, _config.RpcPort);
+            Logger.Info("Definindo argumentos do processo.");
+            return string.Format("--enable-rpc --dir=\"{0}\" -c --listen-port={1} --rpc-listen-port={2} --follow-torrent=false -V", DownloadedFilesDirPath.Trim(), _config.Port, _config.RpcPort);
         }
    }
 }

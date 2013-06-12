@@ -35,7 +35,15 @@ namespace Aria4net.Sample
 
             IServer server = new Aria2cServer(
                 new Aria2cProcessStarter(
-                    new Aria2cFinder(config), config) {DownloadedFilesDirPath = "c:\\temp"});
+                    new Aria2cFinder(config), 
+                    config, 
+                    logger)
+                    {
+                        DownloadedFilesDirPath = "c:\\temp"
+                    },
+                    new DefaultValidationRunner(),
+                    config,
+                    logger);
 
             server.Start();
 
@@ -48,7 +56,7 @@ namespace Aria4net.Sample
 
             var url1 =
                 "ftp://download.warface.levelupgames.com.br/Warface/Installer/Instalador_Client_LevelUp_1.0.34.006.torrent";
-            var url2 = "http://download.levelupgames.com.br/Warface/Installer/Instalador_Patch_LevelUp_1.0.34.010.torrent";
+            //var url2 = "http://download.levelupgames.com.br/Warface/Installer/Instalador_Patch_LevelUp_1.0.34.010.torrent";
 
             var gid1 = "";
             var gid2 = "";
@@ -87,7 +95,7 @@ namespace Aria4net.Sample
                 };
             
             gid1 = client.AddTorrent(url1);
-            gid2 = client.AddTorrent(url2);
+            //gid2 = client.AddTorrent(url2);
 
             Console.ReadKey();
 

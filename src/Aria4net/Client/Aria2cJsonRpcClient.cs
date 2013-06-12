@@ -45,8 +45,9 @@ namespace Aria4net.Client
             keys.Enqueue(_watcher.Subscribe("aria2.onDownloadError", gid =>
             {
                 if (gid != newGid) return;
+                status = GetStatus(newGid);
 
-                _logger.Info("Download da url {0} com gid {1} com erro.", url, gid);
+                _logger.Info("Download da url {0} com gid {1} com erro. Código {2}", url, gid, status.ErrorCode);
 
                 Remove(gid);
 
@@ -61,6 +62,7 @@ namespace Aria4net.Client
             keys.Enqueue(_watcher.Subscribe("aria2.onDownloadPause", gid =>
             {
                 if (gid != newGid) return;
+                status = GetStatus(newGid);
 
                 _logger.Info("Download da url {0} com gid {1} pausado.", url, gid);
 
@@ -71,6 +73,7 @@ namespace Aria4net.Client
             keys.Enqueue(_watcher.Subscribe("aria2.onDownloadStop", gid =>
             {
                 if (gid != newGid) return;
+                status = GetStatus(newGid);
 
                 _history.Remove(url);
                 _logger.Info("Download da url {0} com gid {1} parado e removido.", url, gid);
@@ -97,6 +100,8 @@ namespace Aria4net.Client
             {
                 if (gid != newGid) return;
 
+                status = GetStatus(newGid);
+
                 _logger.Info("Download da url {0} com gid {1} concluido", url, gid);
                 _history.Remove(url);
 
@@ -109,6 +114,9 @@ namespace Aria4net.Client
                 }));
 
             var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(response.Content);
+
+            if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
+
             newGid = result.Result;
             
             _history.Add(url,result);
@@ -123,10 +131,67 @@ namespace Aria4net.Client
             var keys = new Queue<Guid>();
 
             keys.Enqueue(_watcher.Subscribe("aria2.onDownloadError", gid =>
+                {
+                    if (gid != newGid) return;
+
+                    status = GetStatus(gid);
+
+                    _logger.Info("Download da url {0} com gid {1} com erro. Código {2}", url, gid, status.ErrorCode);
+
+                    Remove(gid);
+
+                    if (null != DownloadError)
+                        DownloadError(this, new Aria2cClientEventArgs
+                            {
+                                Status = status,
+                                Url = url
+                            });
+                }));
+
+            keys.Enqueue(_watcher.Subscribe("aria2.onDownloadComplete", gid =>
+                {
+                    if (gid != newGid) return;
+
+                    status =  GetStatus(gid);
+                    _logger.Info("Download do arquivo torrent url {0} com gid {1} concluido.", url, gid);
+
+                    string torrentPath = status.Files.FirstOrDefault().Path;
+
+                    _history.Remove(url);
+
+                    Remove(gid);
+
+                    AddTorrent(GetTorrent(torrentPath),torrentPath);
+                }));
+
+            IRestResponse response = _restClient.Execute(CreateRequest("aria2.addUri", new List<string[]>
+                {
+                    new[] {url}
+                }));
+
+            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(response.Content);
+
+            if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
+
+            newGid = result.Result;
+            _history.Add(url, result);
+
+            return newGid;
+        }
+
+        public virtual string AddTorrent(byte[] torrent, string path)
+        {
+            string newGid = string.Empty;
+            Aria2cDownloadStatus status = null;
+            var keys = new Queue<Guid>();
+
+            keys.Enqueue(_watcher.Subscribe("aria2.onDownloadError", gid =>
             {
                 if (gid != newGid) return;
+                
+                status = GetStatus(newGid);
 
-                _logger.Info("Download da url {0} com gid {1} com erro.", url, gid);
+                _logger.Info("Download da url {0} com gid {1} com erro.", path, gid);
 
                 Remove(gid);
 
@@ -134,7 +199,7 @@ namespace Aria4net.Client
                     DownloadError(this, new Aria2cClientEventArgs
                     {
                         Status = status,
-                        Url = url
+                        Url = path
                     });
             }));
 
@@ -142,13 +207,15 @@ namespace Aria4net.Client
             {
                 if (gid != newGid) return;
 
-                _logger.Info("Download da url {0} com gid {1} pausado.", url, gid);
+                status = GetStatus(newGid);
+
+                _logger.Info("Download da url {0} com gid {1} pausado.", path, gid);
 
                 if (null != DownloadPaused)
                     DownloadPaused(this, new Aria2cClientEventArgs
                     {
                         Status = status,
-                        Url = url
+                        Url = path
                     });
             }));
 
@@ -156,15 +223,18 @@ namespace Aria4net.Client
             {
                 if (gid != newGid) return;
 
-                _history.Remove(url);
+                status = GetStatus(newGid);
 
-                _logger.Info("Download da url {0} com gid {1} parado e removido.", url, gid);
+                _history.Remove(path);
 
-                if (null != DownloadStoped) DownloadStoped(this, new Aria2cClientEventArgs
-                {
-                    Status = status,
-                    Url = url
-                });
+                _logger.Info("Download da url {0} com gid {1} parado e removido.", path, gid);
+
+                if (null != DownloadStoped)
+                    DownloadStoped(this, new Aria2cClientEventArgs
+                    {
+                        Status = status,
+                        Url = path
+                    });
             }));
 
             keys.Enqueue(_watcher.Subscribe("aria2.onDownloadStart", gid =>
@@ -173,12 +243,12 @@ namespace Aria4net.Client
 
                 status = GetStatus(gid);
 
-                _logger.Info("Download da url {0} com gid {1} iniciado.", url, gid);
+                _logger.Info("Download da url {0} com gid {1} iniciado.", path, gid);
                 var eventArgs =
                     new Aria2cClientEventArgs
                     {
                         Status = status,
-                        Url = url
+                        Url = path
                     };
 
                 if (null != DownloadStarted) DownloadStarted.Invoke(this, eventArgs);
@@ -190,24 +260,29 @@ namespace Aria4net.Client
             {
                 if (gid != newGid) return;
 
-                _logger.Info("Download da url {0} com gid {1} concluido.", url, gid);
+                status = GetStatus(newGid);
 
-                _history.Remove(url);
+                _logger.Info("Download da url {0} com gid {1} concluido.", path, gid);
+
+                _history.Remove(path);
 
                 if (null != DownloadCompleted)
                     DownloadCompleted(this, new Aria2cClientEventArgs
                     {
                         Status = status,
-                        Url = url
+                        Url = path
                     });
             }));
-            
-            IRestResponse response = _restClient.Execute(CreateRequest("aria2.addTorrent", new[]{GetTorrent(url)}));
+
+            IRestResponse response = _restClient.Execute(CreateRequest("aria2.addTorrent", new[] {Convert.ToBase64String(torrent)}));
 
             var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(response.Content);
 
+            if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
+
             newGid = result.Result;
-            _history.Add(url, result);
+
+            _history.Add(path, result);
 
             return newGid;
         }
@@ -330,15 +405,9 @@ namespace Aria4net.Client
 
         }
 
-        private string GetTorrent(string url)
+        private byte[] GetTorrent(string path)
         {
-            using (var client = new WebClient())
-            {
-
-                var bytes = client.DownloadData(url);
-
-                return Convert.ToBase64String(bytes);
-            }
+            return File.ReadAllBytes(path);
         }
 
         protected virtual IRestRequest CreateRequest<TParameters>(string method, TParameters parameters)
