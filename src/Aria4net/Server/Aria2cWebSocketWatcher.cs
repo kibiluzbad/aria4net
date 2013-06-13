@@ -63,10 +63,10 @@ namespace Aria4net.Server
             if (string.IsNullOrEmpty(("" + message.Method).Trim())) return;
 
             _logger.Info("Invoking actions for {0}.", message.Method);
-            
+
             if (!Actions.ContainsKey(message.Method)) return;
 
-            foreach (var action in Actions[message.Method])
+            foreach (var action in Actions[message.Method].ToList())
             {
                 _logger.Info("Invoking action for {0}.", message.Method);
 

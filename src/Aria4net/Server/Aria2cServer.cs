@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.NetworkInformation;
 using Aria4net.Common;
 using NLog;
 
@@ -34,6 +31,8 @@ namespace Aria4net.Server
             _serverValidationRunner.Run();
 
             _processStarter.Run();
+
+            IsRunning = true;
         }
 
         protected virtual void AddStartValidationRules()
@@ -58,70 +57,16 @@ namespace Aria4net.Server
         {
             _logger.Info("Parando servidor");
             _processStarter.Exit();
+            IsRunning = false;
         }
+
+        public bool IsRunning { get; private set; }
 
         public void Dispose()
         {
             if(null == _processStarter) return;
 
             _processStarter.Dispose();
-        }
-    }
-
-    public interface IServerValidationRunner
-    {
-        void Run();
-        void AddRule(IServerValidationRule getRuleForJsonRpcPort);
-    }
-
-    public class DefaultValidationRunner : IServerValidationRunner
-    {
-        private ICollection<IServerValidationRule> _rules;
-        
-        public DefaultValidationRunner()
-        {
-            _rules = new HashSet<IServerValidationRule>();
-        }
-        
-        public void Run()
-        {
-            foreach (var rule in _rules)
-            {
-                rule.Execute();
-            }
-        }
-
-        public void AddRule(IServerValidationRule rule)
-        {
-            _rules.Add(rule);
-        }
-    }
-
-    public interface IServerValidationRule
-    {
-        void Execute();
-    }
-
-    public class CheckTcpPortRule : IServerValidationRule
-    {
-        public int Port { get; set; }
-
-        public void Execute()
-        {
-            IPGlobalProperties ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
-            TcpConnectionInformation[] tcpConnInfoArray = ipGlobalProperties.GetActiveTcpConnections();
-
-            if (tcpConnInfoArray.Any(tcpi => tcpi.LocalEndPoint.Port == Port))
-                throw new TcpPortNotAvailableExcpetion(Port);
-        }
-    }
-
-    public class TcpPortNotAvailableExcpetion : Exception
-    {
-        public TcpPortNotAvailableExcpetion(int port, Exception ex = null)
-            : base(string.Format("A porta tcp {0} não está disponivel para ser utilizada", port),ex)
-        {
-            
         }
     }
 }

@@ -66,6 +66,10 @@
     <Compile Include="Server\Aria2cParameter.cs" />
     <Compile Include="Server\Aria2cWebSocketMessage.cs" />
     <Compile Include="Server\Aria2cWebSocketWatcher.cs" />
+    <Compile Include="Server\CheckTcpPortRule.cs" />
+    <Compile Include="Server\DefaultValidationRunner.cs" />
+    <Compile Include="Server\IServerValidationRule.cs" />
+    <Compile Include="Server\IServerValidationRunner.cs" />
     <Compile Include="Server\IServerWatcher.cs" />
     <Compile Include="Common\IProcessStarter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -76,6 +80,7 @@
     <Compile Include="Common\IFileFinder.cs" />
     <Compile Include="Server\IServer.cs" />
     <Compile Include="Common\ProcessStarter.cs" />
+    <Compile Include="Server\TcpPortNotAvailableExcpetion.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

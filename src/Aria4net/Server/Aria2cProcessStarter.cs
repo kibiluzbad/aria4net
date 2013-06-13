@@ -43,7 +43,7 @@ namespace Aria4net.Server
         protected override string GetArguments()
         {
             Logger.Info("Definindo argumentos do processo.");
-            return string.Format("--enable-rpc --dir=\"{0}\" -c --listen-port={1} --rpc-listen-port={2} --follow-torrent=false -V", DownloadedFilesDirPath.Trim(), _config.Port, _config.RpcPort);
+            return string.Format("--enable-rpc --dir=\"{0}\" -c --listen-port={1} --rpc-listen-port={2} --follow-torrent=false", DownloadedFilesDirPath.Trim(), _config.Port, _config.RpcPort);
         }
    }
 }

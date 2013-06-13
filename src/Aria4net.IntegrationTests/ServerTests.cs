@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -83,18 +82,6 @@ namespace Aria4net.IntegrationTests
                 "ftp://download.warface.levelupgames.com.br/Warface/Installer/Instalador_Client_LevelUp_1.0.34.006.torrent");
 
             server.Stop();
-        }
-    }
-
-    internal class Aria2cProcessStarterWithWindow : Aria2cProcessStarter
-    {
-        public Aria2cProcessStarterWithWindow(IFileFinder fileFinder, Aria2cConfig config, Logger logger) : base(fileFinder, config, logger)
-        {
-        }
-
-        protected override void ConfigureProcess(System.Diagnostics.Process process)
-        {
-            process.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
         }
     }
 }

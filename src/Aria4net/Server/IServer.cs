@@ -6,5 +6,6 @@ namespace Aria4net.Server
     {
         void Start();
         void Stop();
+        bool IsRunning { get; }
     }
 }
