@@ -68,7 +68,7 @@ namespace Aria4net.Server.Watcher
 
             foreach (var action in Actions[message.Method].ToList())
             {
-                _logger.Info("Invoking action for {0}.", message.Method);
+                _logger.Info("Invoking action {1} for {0}.", message.Method, action.Key);
 
                 var aria2cParameter = message.Params.FirstOrDefault();
                 if (aria2cParameter != null) action.Value(aria2cParameter.Gid);
