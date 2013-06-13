@@ -56,6 +56,8 @@ namespace Aria4net.Sample
                                                                                 logger).Connect(),
                                                      logger);
 
+            client.Shutdown();
+
             var url1 =
                 "ftp://download.warface.levelupgames.com.br/Warface/Installer/Instalador_Client_LevelUp_1.0.34.006.torrent";
             //var url2 = "http://download.levelupgames.com.br/Warface/Installer/Instalador_Patch_LevelUp_1.0.34.010.torrent";

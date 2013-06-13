@@ -292,11 +292,24 @@ namespace Aria4net.Client
         public string Purge()
         {
             _logger.Info("Limpando downloads completos / com erro / removidos.");
-            IRestResponse response = _restClient.Execute(CreateRequest("aria2.purgeDownloadResult", ""));
+            IRestResponse response = _restClient.Execute(CreateRequest<string>("aria2.purgeDownloadResult"));
 
             var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(response.Content);
 
-            return result.Result;}
+            return result.Result;
+        }
+
+        public string Shutdown()
+        {
+            _logger.Info("Solicitando shutdown do servidor.");
+            IRestResponse response = _restClient.Execute(CreateRequest<string>("aria2.forceShutdown"));
+
+            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(response.Content);
+
+            if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
+
+            return result.Result;    
+        }
 
         public virtual Aria2cDownloadStatus GetStatus(string gid)
         {
@@ -427,20 +440,28 @@ namespace Aria4net.Client
             return File.ReadAllBytes(path);
         }
 
-        protected virtual IRestRequest CreateRequest<TParameters>(string method, TParameters parameters)
+        protected virtual IRestRequest CreateRequest<TParameters>(string method, TParameters parameters = default(TParameters))
         {
             var request = new RestRequest(_config.JsonrpcUrl)
-            {
-                RequestFormat = DataFormat.Json
-            };
+                {
+                    RequestFormat = DataFormat.Json
+                };
 
-            request.AddBody(new
-            {
-                jsonrpc = _config.JsonrpcVersion,
-                id = _config.Id,
-                method,
-                @params = parameters
-            });
+            if (null != parameters)
+                request.AddBody(new
+                    {
+                        jsonrpc = _config.JsonrpcVersion,
+                        id = _config.Id,
+                        method,
+                        @params = parameters
+                    });
+            else
+                request.AddBody(new
+                    {
+                        jsonrpc = _config.JsonrpcVersion,
+                        id = _config.Id,
+                        method,
+                    });
 
             request.Method = Method.POST;
 

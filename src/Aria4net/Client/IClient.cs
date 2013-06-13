@@ -12,6 +12,7 @@ namespace Aria4net.Client
         string Stop(string gid);
         string Remove(string gid);
         string Purge();
+        string Shutdown();
 
         Aria2cDownloadStatus GetStatus(string gid);
 
