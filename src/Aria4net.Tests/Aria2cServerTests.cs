@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using Aria4net.Common;
 using Aria4net.Server;
+using Aria4net.Server.Validation;
 using Moq;
 using NLog;
 using NUnit.Framework;

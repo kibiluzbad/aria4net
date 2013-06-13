@@ -1,4 +1,6 @@
-﻿namespace Aria4net.Client
+﻿using Aria4net.Client;
+
+namespace Aria4net.Common
 {
     public class Aria2cFile
     {

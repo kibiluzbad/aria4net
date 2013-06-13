@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Aria4net.Server
+namespace Aria4net.Server.Watcher
 {
     public interface IServerWatcher
     {

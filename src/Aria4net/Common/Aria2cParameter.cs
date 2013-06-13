@@ -1,4 +1,4 @@
-namespace Aria4net.Server
+namespace Aria4net.Common
 {
     public class Aria2cParameter
     {

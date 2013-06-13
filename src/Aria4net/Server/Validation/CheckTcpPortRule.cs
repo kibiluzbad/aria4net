@@ -1,7 +1,8 @@
 ﻿using System.Linq;
 using System.Net.NetworkInformation;
+using Aria4net.Exceptions;
 
-namespace Aria4net.Server
+namespace Aria4net.Server.Validation
 {
     public class CheckTcpPortRule : IServerValidationRule
     {
@@ -13,7 +14,7 @@ namespace Aria4net.Server
             TcpConnectionInformation[] tcpConnInfoArray = ipGlobalProperties.GetActiveTcpConnections();
 
             if (tcpConnInfoArray.Any(tcpi => tcpi.LocalEndPoint.Port == Port))
-                throw new TcpPortNotAvailableExcpetion(Port);
+                throw new TcpPortNotAvailableException(Port);
         }
     }
 }

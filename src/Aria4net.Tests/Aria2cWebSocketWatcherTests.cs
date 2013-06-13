@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Aria4net.Common;
 using Aria4net.Server;
+using Aria4net.Server.Watcher;
 using Moq;
 using NLog;
 using NUnit.Framework;

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Aria4net.Client
+namespace Aria4net.Common
 {
     public class Aria2cDownloadStatus
     {

@@ -52,25 +52,25 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Client\Aria2cBittorrent.cs" />
-    <Compile Include="Client\Aria2cClientEventArgs.cs" />
-    <Compile Include="Client\Aria2cDownloadStatus.cs" />
-    <Compile Include="Client\Aria2cFile.cs" />
-    <Compile Include="Client\Aria2cInfo.cs" />
+    <Compile Include="Common\Aria2cBittorrent.cs" />
+    <Compile Include="Common\Aria2cClientEventArgs.cs" />
+    <Compile Include="Common\Aria2cDownloadStatus.cs" />
+    <Compile Include="Common\Aria2cFile.cs" />
+    <Compile Include="Common\Aria2cInfo.cs" />
     <Compile Include="Client\Aria2cJsonRpcClient.cs" />
-    <Compile Include="Client\Aria2cUri.cs" />
+    <Compile Include="Common\Aria2cUri.cs" />
     <Compile Include="Common\Aria2cError.cs" />
     <Compile Include="Common\Aria2cResult.cs" />
     <Compile Include="Client\IClient.cs" />
-    <Compile Include="Server\Aria2cException.cs" />
-    <Compile Include="Server\Aria2cParameter.cs" />
-    <Compile Include="Server\Aria2cWebSocketMessage.cs" />
-    <Compile Include="Server\Aria2cWebSocketWatcher.cs" />
-    <Compile Include="Server\CheckTcpPortRule.cs" />
-    <Compile Include="Server\DefaultValidationRunner.cs" />
-    <Compile Include="Server\IServerValidationRule.cs" />
-    <Compile Include="Server\IServerValidationRunner.cs" />
-    <Compile Include="Server\IServerWatcher.cs" />
+    <Compile Include="Exceptions\Aria2cException.cs" />
+    <Compile Include="Common\Aria2cParameter.cs" />
+    <Compile Include="Server\Watcher\Aria2cWebSocketMessage.cs" />
+    <Compile Include="Server\Watcher\Aria2cWebSocketWatcher.cs" />
+    <Compile Include="Server\Validation\CheckTcpPortRule.cs" />
+    <Compile Include="Server\Validation\DefaultValidationRunner.cs" />
+    <Compile Include="Server\Validation\IServerValidationRule.cs" />
+    <Compile Include="Server\Validation\IServerValidationRunner.cs" />
+    <Compile Include="Server\Watcher\IServerWatcher.cs" />
     <Compile Include="Common\IProcessStarter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Common\Aria2cConfig.cs" />
@@ -80,7 +80,7 @@
     <Compile Include="Common\IFileFinder.cs" />
     <Compile Include="Server\IServer.cs" />
     <Compile Include="Common\ProcessStarter.cs" />
-    <Compile Include="Server\TcpPortNotAvailableExcpetion.cs" />
+    <Compile Include="Exceptions\TcpPortNotAvailableException.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

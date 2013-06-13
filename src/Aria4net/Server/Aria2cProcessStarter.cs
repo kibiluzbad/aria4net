@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using Aria4net.Common;
+using Aria4net.Exceptions;
 using NLog;
 
 namespace Aria4net.Server

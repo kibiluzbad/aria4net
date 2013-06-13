@@ -7,7 +7,7 @@ using NLog;
 using Newtonsoft.Json;
 using WebSocket4Net;
 
-namespace Aria4net.Server
+namespace Aria4net.Server.Watcher
 {
     public class Aria2cWebSocketWatcher : IServerWatcher
     {

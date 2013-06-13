@@ -1,4 +1,4 @@
-﻿namespace Aria4net.Server
+﻿namespace Aria4net.Server.Validation
 {
     public interface IServerValidationRunner
     {

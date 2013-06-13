@@ -1,4 +1,4 @@
-﻿namespace Aria4net.Client
+﻿namespace Aria4net.Common
 {
     public class Aria2cInfo
     {

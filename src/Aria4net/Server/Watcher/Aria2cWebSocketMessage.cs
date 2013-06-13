@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using Aria4net.Common;
 
-namespace Aria4net.Server
+namespace Aria4net.Server.Watcher
 {
     public class Aria2cWebSocketMessage
     {

@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace Aria4net.Server
+namespace Aria4net.Exceptions
 {
-    public class TcpPortNotAvailableExcpetion : Exception
+    public class TcpPortNotAvailableException : Exception
     {
-        public TcpPortNotAvailableExcpetion(int port, Exception ex = null)
+        public TcpPortNotAvailableException(int port, Exception ex = null)
             : base(string.Format("A porta tcp {0} não está disponivel para ser utilizada", port),ex)
         {
             

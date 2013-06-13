@@ -8,6 +8,8 @@ using System.Threading;
 using Aria4net.Client;
 using Aria4net.Common;
 using Aria4net.Server;
+using Aria4net.Server.Validation;
+using Aria4net.Server.Watcher;
 using NLog;
 using RestSharp;
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using Aria4net.Common;
 
 namespace Aria4net.Client
 {

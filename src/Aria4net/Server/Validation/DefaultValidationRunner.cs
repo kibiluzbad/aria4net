@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Aria4net.Server
+namespace Aria4net.Server.Validation
 {
     public class DefaultValidationRunner : IServerValidationRunner
     {

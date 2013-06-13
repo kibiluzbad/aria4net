@@ -8,6 +8,8 @@ using System.Threading;
 using Aria4net.Client;
 using Aria4net.Common;
 using Aria4net.Server;
+using Aria4net.Server.Validation;
+using Aria4net.Server.Watcher;
 using Moq;
 using NLog;
 using NUnit.Framework;
@@ -82,6 +84,32 @@ namespace Aria4net.IntegrationTests
                 "ftp://download.warface.levelupgames.com.br/Warface/Installer/Instalador_Client_LevelUp_1.0.34.006.torrent");
 
             server.Stop();
+        }
+
+        [Test, Ignore]
+        public void Get_status()
+        {
+            var config = new Aria2cConfig
+            {
+                Executable = "",
+                Id = Guid.NewGuid().ToString(),
+                JsonrpcUrl = "http://localhost:6800/jsonrpc",
+                JsonrpcVersion = "2.0",
+                Port = 7001,
+                RpcPort = 6800,
+                WebSocketUrl = "ws://localhost:6800/jsonrpc"
+            };
+
+            var logger = LogManager.GetCurrentClassLogger();
+            
+            IClient client = new Aria2cJsonRpcClient(new RestClient(),
+                                                   config,
+                                                   new Dictionary<string, Aria2cResult<string>>(), 
+                                                   new Aria2cWebSocketWatcher(config,
+                                                                              logger).Connect(),
+                                                   logger);
+
+            var status = client.GetStatus("6ad3263090c0ea45");
         }
     }
 }

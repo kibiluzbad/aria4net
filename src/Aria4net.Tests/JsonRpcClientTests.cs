@@ -7,6 +7,7 @@ using System.Text;
 using Aria4net.Client;
 using Aria4net.Common;
 using Aria4net.Server;
+using Aria4net.Server.Watcher;
 using Microsoft.Isam.Esent.Collections.Generic;
 using Moq;
 using NLog;

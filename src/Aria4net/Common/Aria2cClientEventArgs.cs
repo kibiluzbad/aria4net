@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using Aria4net.Client;
 
-namespace Aria4net.Client
+namespace Aria4net.Common
 {
     public class Aria2cClientEventArgs : EventArgs
     {

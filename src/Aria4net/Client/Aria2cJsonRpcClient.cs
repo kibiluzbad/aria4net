@@ -6,7 +6,9 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using Aria4net.Common;
+using Aria4net.Exceptions;
 using Aria4net.Server;
+using Aria4net.Server.Watcher;
 using NLog;
 using Newtonsoft.Json;
 using RestSharp;
@@ -188,12 +190,12 @@ namespace Aria4net.Client
             keys.Enqueue(_watcher.Subscribe("aria2.onDownloadError", gid =>
             {
                 if (gid != newGid) return;
-                
+
                 status = GetStatus(newGid);
 
-                _logger.Info("Download da url {0} com gid {1} com erro.", path, gid);
-
-                Remove(gid);
+                Remove(newGid);
+                
+                _logger.Error( "Download da url {0} com gid {1} com erro.", path, gid);
 
                 if (null != DownloadError)
                     DownloadError(this, new Aria2cClientEventArgs
@@ -384,21 +386,36 @@ namespace Aria4net.Client
         {
             _logger.Info("Observando progresso de {0}.", eventArgs.Status.Gid);
 
-            var worker = new BackgroundWorker() { WorkerReportsProgress = true };
-            worker.RunWorkerCompleted += (sender, args) => worker.Dispose();
+            var worker = new BackgroundWorker()
+                {
+                    WorkerReportsProgress = true
+                };
+            worker.RunWorkerCompleted += (sender, args) =>
+                {
+                    if (null != args.Error) throw args.Error;
+
+                    worker.Dispose();
+                };
             worker.DoWork += (sender, args) =>
                 {
                     while (!eventArgs.Status.Completed
                         && _history.ContainsKey(eventArgs.Url))
                     {
-                        var result = GetProgress(eventArgs.Status.Gid);
+                        try
+                        {
+                            var result = GetProgress(eventArgs.Status.Gid);
+                            eventArgs.Status.CompletedLength = result.CompletedLength;
+                            eventArgs.Status.DownloadSpeed = result.DownloadSpeed;
 
-                        eventArgs.Status.CompletedLength = result.CompletedLength;
-                        eventArgs.Status.DownloadSpeed = result.DownloadSpeed;
+                            if (null != DownloadProgress) DownloadProgress.Invoke(this, eventArgs);
 
-                        if (null != DownloadProgress) DownloadProgress.Invoke(this, eventArgs);
-
-                        Thread.Sleep(500);
+                            Thread.Sleep(500);
+                        }
+                        catch (Aria2cException ex)
+                        {
+                            _logger.FatalException(ex.Message,ex);
+                            break;
+                        }
                     }
                 };
             worker.RunWorkerAsync();

@@ -1,6 +1,6 @@
 using System;
 
-namespace Aria4net.Server
+namespace Aria4net.Exceptions
 {
     public class Aria2cException : ApplicationException
     {
