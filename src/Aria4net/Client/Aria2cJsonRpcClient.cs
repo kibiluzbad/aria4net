@@ -162,6 +162,7 @@ namespace Aria4net.Client
                     _history.Remove(url);
 
                     Remove(gid);
+                    _watcher.Unsubscribe(keys);
 
                     AddTorrent(GetTorrent(torrentPath),torrentPath);
                 }));
@@ -267,6 +268,8 @@ namespace Aria4net.Client
                 _logger.Info("Download da url {0} com gid {1} concluido.", path, gid);
 
                 _history.Remove(path);
+
+                _watcher.Unsubscribe(keys);
 
                 if (null != DownloadCompleted)
                     DownloadCompleted(this, new Aria2cClientEventArgs
@@ -429,6 +432,12 @@ namespace Aria4net.Client
                             _logger.FatalException(ex.Message,ex);
                             break;
                         }
+                    }
+
+                    if (_history.ContainsKey(eventArgs.Url)
+                        && eventArgs.Status.Completed)
+                    {
+                        if (null != DownloadCompleted) DownloadCompleted(this, eventArgs);
                     }
                 };
             worker.RunWorkerAsync();
