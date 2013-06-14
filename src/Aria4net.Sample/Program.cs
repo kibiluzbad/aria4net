@@ -105,7 +105,7 @@ namespace Aria4net.Sample
 
             Console.ReadKey();
 
-            server.Stop();
+            client.Shutdown();
         }
     }
 }

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reactive.Concurrency;
 using System.Threading;
 using Aria4net.Common;
 using Aria4net.Exceptions;
@@ -402,20 +403,14 @@ namespace Aria4net.Client
         {
             _logger.Info("Observando progresso de {0}.", eventArgs.Status.Gid);
 
-            var worker = new BackgroundWorker()
-                {
-                    WorkerReportsProgress = true
-                };
-            worker.RunWorkerCompleted += (sender, args) =>
-                {
-                    if (null != args.Error) throw args.Error;
+            var scheduler = Scheduler.ThreadPool;
 
-                    worker.Dispose();
-                };
-            worker.DoWork += (sender, args) =>
+            IDisposable subscripton = null;
+
+            subscripton = scheduler.Schedule(new TimeSpan(0, 0, 0, 0, 500), () =>
                 {
                     while (!eventArgs.Status.Completed
-                        && _history.ContainsKey(eventArgs.Url))
+                     && _history.ContainsKey(eventArgs.Url))
                     {
                         try
                         {
@@ -429,7 +424,7 @@ namespace Aria4net.Client
                         }
                         catch (Aria2cException ex)
                         {
-                            _logger.FatalException(ex.Message,ex);
+                            _logger.FatalException(ex.Message, ex);
                             break;
                         }
                     }
@@ -439,9 +434,12 @@ namespace Aria4net.Client
                     {
                         if (null != DownloadCompleted) DownloadCompleted(this, eventArgs);
                     }
-                };
-            worker.RunWorkerAsync();
 
+                    if(null != subscripton) subscripton.Dispose();
+
+                });
+
+            
         }
 
         private byte[] GetTorrent(string path)
