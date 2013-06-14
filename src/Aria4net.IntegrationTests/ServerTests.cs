@@ -117,5 +117,22 @@ namespace Aria4net.IntegrationTests
 
             var status = client.GetStatus("6ad3263090c0ea45");
         }
+
+        [Test]
+        public void teste()
+        {
+            var fat = Unfold(0, i => i + (i + 1));
+            var l = fat.Take(10).ToList();
+        }
+
+        private static IEnumerable<T> Unfold<T>(T seed, Func<T, T> accumulator)
+        {
+            var nextValue = seed;
+            while (true)
+            {
+                nextValue = accumulator(nextValue);
+                yield return nextValue;
+            }
+        }
     }
 }

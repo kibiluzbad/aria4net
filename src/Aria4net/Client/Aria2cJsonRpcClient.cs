@@ -432,11 +432,10 @@ namespace Aria4net.Client
                     if (_history.ContainsKey(eventArgs.Url)
                         && eventArgs.Status.Completed)
                     {
-                        if (null != DownloadCompleted) DownloadCompleted(this, eventArgs);
+                        if (null != DownloadCompleted) DownloadCompleted(this, eventArgs);                    
                     }
 
                     if(null != subscripton) subscripton.Dispose();
-
                 });
 
             
