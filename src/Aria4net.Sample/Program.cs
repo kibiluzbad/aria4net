@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using Aria4net.Client;
@@ -19,7 +20,7 @@ namespace Aria4net.Sample
     {
         private static void Main(string[] args)
         {
-            string appRoot = @"C:\work\aria4net";
+            string appRoot = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)))));
 
             IDictionary<string, Aria2cResult<string>> downloadHistory = new Dictionary<string, Aria2cResult<string>>();
             var logger = LogManager.GetCurrentClassLogger();
