@@ -34,6 +34,8 @@ namespace Aria4net.Server
             _processStarter.Run();
 
             IsRunning = true;
+
+            if (null != Started) Started(this, new EventArgs());
         }
 
         protected virtual void AddStartValidationRules()
@@ -59,9 +61,13 @@ namespace Aria4net.Server
             _logger.Info("Parando servidor");
             _processStarter.Exit();
             IsRunning = false;
+            if (null != Stoped) Stoped(this, new EventArgs());
         }
 
         public bool IsRunning { get; private set; }
+
+        public event EventHandler<EventArgs> Started;
+        public event EventHandler<EventArgs> Stoped;
 
         public void Dispose()
         {

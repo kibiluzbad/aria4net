@@ -7,5 +7,8 @@ namespace Aria4net.Server
         void Start();
         void Stop();
         bool IsRunning { get; }
+
+        event EventHandler<EventArgs> Started;
+        event EventHandler<EventArgs> Stoped;
     }
 }

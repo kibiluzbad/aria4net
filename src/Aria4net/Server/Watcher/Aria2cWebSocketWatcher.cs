@@ -35,13 +35,25 @@ namespace Aria4net.Server.Watcher
      
         private void AttachEvents()
         {
-            _socket.Opened += (sender, args) => _logger.Info("Websocket connection opened.");
+            _socket.Opened += (sender, args) =>
+                {
+                    if (null != ConnectionOpened) ConnectionOpened(this, args);
+                    _logger.Info("Websocket connection opened.");
+                };
             
-            _socket.Closed += (sender, args) => _logger.Info("Websocket connection closed.");
+            _socket.Closed += (sender, args) =>
+                {
+                    if (null != ConnectionClosed) ConnectionClosed(this, args);
+                    _logger.Info("Websocket connection closed.");
+                };
 
             _socket.MessageReceived += SocketOnMessageReceived;
 
-            _socket.Error += (sender, args) => _logger.FatalException(args.Exception.Message,args.Exception);
+            _socket.Error += (sender, args) =>
+                {
+                    if (null != OnError) OnError(this, args);
+                    _logger.FatalException(args.Exception.Message, args.Exception);
+                };
         }
 
         protected virtual void SocketOnMessageReceived(object sender, MessageReceivedEventArgs args)
@@ -140,5 +152,9 @@ namespace Aria4net.Server.Watcher
                 }
             }
         }
+
+        public event EventHandler<EventArgs> ConnectionOpened;
+        public event EventHandler<EventArgs> ConnectionClosed;
+        public event EventHandler<EventArgs> OnError;
     }
 }
