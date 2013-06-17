@@ -6,6 +6,7 @@ using Aria4net.Common;
 using NLog;
 using Newtonsoft.Json;
 using WebSocket4Net;
+using ErrorEventArgs = SuperSocket.ClientEngine.ErrorEventArgs;
 
 namespace Aria4net.Server.Watcher
 {
@@ -155,6 +156,6 @@ namespace Aria4net.Server.Watcher
 
         public event EventHandler<EventArgs> ConnectionOpened;
         public event EventHandler<EventArgs> ConnectionClosed;
-        public event EventHandler<EventArgs> OnError;
+        public event EventHandler<ErrorEventArgs> OnError;
     }
 }

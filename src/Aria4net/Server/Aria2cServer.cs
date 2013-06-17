@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Threading;
 using Aria4net.Common;
 using Aria4net.Server.Validation;
+using Aria4net.Server.Watcher;
 using NLog;
+using SuperSocket.ClientEngine;
 
 namespace Aria4net.Server
 {
@@ -11,16 +14,19 @@ namespace Aria4net.Server
         private readonly IServerValidationRunner _serverValidationRunner;
         private readonly Aria2cConfig _config;
         private readonly Logger _logger;
+        private readonly IServerWatcher _serverWatcher;
 
         public Aria2cServer(IProcessStarter processStarter, 
             IServerValidationRunner serverValidationRunner,
             Aria2cConfig config,
-            Logger logger)
+            Logger logger,
+            IServerWatcher serverWatcher)
         {
             _processStarter = processStarter;
             _serverValidationRunner = serverValidationRunner;
             _config = config;
             _logger = logger;
+            _serverWatcher = serverWatcher;
         }
 
         public void Start()
@@ -28,14 +34,34 @@ namespace Aria4net.Server
             _logger.Info("Iniciando servidor");
 
             AddStartValidationRules();
-            
+
             _serverValidationRunner.Run();
 
             _processStarter.Run();
 
-            IsRunning = true;
+            var reset = new ManualResetEvent(false);
 
-            if (null != Started) Started(this, new EventArgs());
+            _serverWatcher.ConnectionOpened += (sender, args) =>
+                {
+                    IsRunning = true;
+                    if (null != Started) Started(this, new EventArgs());
+                    reset.Set();
+                };
+
+            _serverWatcher.OnError += (sender, args) =>
+                {
+                    if (null != OnError) OnError(this, args);
+                    reset.Set();
+                };
+
+            
+
+            _serverWatcher.Connect();
+
+            if (reset.WaitOne(new TimeSpan(0, 5, 0)))
+            {
+                throw new TimeoutException("Não foi possivel abrir uma conexão com sevidor.");
+            }
         }
 
         protected virtual void AddStartValidationRules()
@@ -68,6 +94,7 @@ namespace Aria4net.Server
 
         public event EventHandler<EventArgs> Started;
         public event EventHandler<EventArgs> Stoped;
+        public event EventHandler<ErrorEventArgs> OnError;
 
         public void Dispose()
         {

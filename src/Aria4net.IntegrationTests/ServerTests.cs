@@ -24,6 +24,7 @@ namespace Aria4net.IntegrationTests
         public void Start_stop_server()
         {
             string appRoot = @"C:\work\aria4net";
+            var fakeWatcher = new Mock<IServerWatcher>();
 
             var logger = LogManager.GetCurrentClassLogger();
 
@@ -37,7 +38,8 @@ namespace Aria4net.IntegrationTests
                     new Aria2cFinder(config), config, logger),
                     new DefaultValidationRunner(), 
                     config,
-                    logger);
+                    logger,
+                    fakeWatcher.Object);
 
             server.Start();
 
@@ -54,6 +56,8 @@ namespace Aria4net.IntegrationTests
 
             IDictionary<string, Aria2cResult<string>> downloadHistory = new Dictionary<string, Aria2cResult<string>>();
             var logger = LogManager.GetCurrentClassLogger();
+            
+            
 
             var config = new Aria2cConfig
                 {
@@ -64,20 +68,22 @@ namespace Aria4net.IntegrationTests
                     WebSocketUrl = "ws://localhost:6800/jsonrpc"
                 };
 
+            var watcher = new Aria2cWebSocketWatcher(config, logger);
+
             IServer server = new Aria2cServer(
                 new Aria2cProcessStarterWithWindow(
                     new Aria2cFinder(config), config, logger) {DownloadedFilesDirPath = "c:\\temp"},
                     new DefaultValidationRunner(), 
                     config,
-                    logger);
+                    logger,
+                    watcher);
 
             server.Start();
 
             IClient client = new Aria2cJsonRpcClient(new RestClient(),
                                                      config,
                                                      downloadHistory,
-                                                     new Aria2cWebSocketWatcher(config,
-                                                                                logger).Connect(),
+                                                     watcher,
                                                      logger);
 
             client.AddTorrent(

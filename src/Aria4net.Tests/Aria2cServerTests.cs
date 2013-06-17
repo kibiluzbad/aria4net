@@ -4,6 +4,7 @@ using System.Text;
 using Aria4net.Common;
 using Aria4net.Server;
 using Aria4net.Server.Validation;
+using Aria4net.Server.Watcher;
 using Moq;
 using NLog;
 using NUnit.Framework;
@@ -19,11 +20,13 @@ namespace Aria4net.Tests
             var mockProcessStarter = new Mock<IProcessStarter>();
             var fakeLogger = new Mock<Logger>();
             var fakeRunner = new Mock<IServerValidationRunner>();
+            var fakeWatcher = new Mock<IServerWatcher>();
 
             IServer server = new Aria2cServer(mockProcessStarter.Object,
                 fakeRunner.Object,
                 new Aria2cConfig(),
-                fakeLogger.Object);
+                fakeLogger.Object, 
+                fakeWatcher.Object);
             server.Start();
 
             mockProcessStarter.Verify(c=>c.Run(), Times.Once());
@@ -35,11 +38,13 @@ namespace Aria4net.Tests
             var mockProcessStarter = new Mock<IProcessStarter>();
             var fakeLogger = new Mock<Logger>();
             var fakeRunner = new Mock<IServerValidationRunner>();
+            var fakeWatcher = new Mock<IServerWatcher>();
 
             IServer server = new Aria2cServer(mockProcessStarter.Object,
                 fakeRunner.Object,
                 new Aria2cConfig(),
-                fakeLogger.Object);
+                fakeLogger.Object,
+                fakeWatcher.Object);
             server.Stop();
 
             mockProcessStarter.Verify(c => c.Exit(), Times.Once());

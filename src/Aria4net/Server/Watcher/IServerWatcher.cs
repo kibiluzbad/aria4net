@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SuperSocket.ClientEngine;
 
 namespace Aria4net.Server.Watcher
 {
@@ -13,6 +14,6 @@ namespace Aria4net.Server.Watcher
 
         event EventHandler<EventArgs> ConnectionOpened;
         event EventHandler<EventArgs> ConnectionClosed;
-        event EventHandler<EventArgs> OnError;
+        event EventHandler<ErrorEventArgs> OnError;
     }
 }

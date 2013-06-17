@@ -36,6 +36,9 @@ namespace Aria4net.Sample
                     RpcPort = 6868
                 };
 
+            var watcher = new Aria2cWebSocketWatcher(config,
+                                                     logger);
+
             IServer server = new Aria2cServer(
                 new Aria2cProcessStarter(
                     new Aria2cFinder(config), 
@@ -46,15 +49,15 @@ namespace Aria4net.Sample
                     },
                     new DefaultValidationRunner(),
                     config,
-                    logger);
+                    logger, 
+                    watcher);
 
             server.Start();
 
             IClient client = new Aria2cJsonRpcClient(new RestClient(),
                                                      config,
                                                      downloadHistory,
-                                                     new Aria2cWebSocketWatcher(config,
-                                                                                logger).Connect(),
+                                                     watcher,
                                                      logger);
 
             var url1 =
