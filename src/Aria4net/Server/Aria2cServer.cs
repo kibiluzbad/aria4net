@@ -58,7 +58,7 @@ namespace Aria4net.Server
 
             _serverWatcher.Connect();
 
-            if (reset.WaitOne(new TimeSpan(0, 5, 0)))
+            if (!reset.WaitOne(new TimeSpan(0, 5, 0)))
             {
                 throw new TimeoutException("Não foi possivel abrir uma conexão com sevidor.");
             }
