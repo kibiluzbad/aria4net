@@ -61,7 +61,7 @@ namespace Aria4net.Sample
                                                      logger);
 
             var url1 =
-                "ftp://download.warface.levelupgames.com.br/Warface/Installer/Instalador_Client_LevelUp_1.0.34.006.torrent";
+                "ftp://download.warface.levelupgames.com.br/Warface/Installer/Instalador_Client_LevelUp_1.0.34.006.rar";
             //var url2 = "http://download.levelupgames.com.br/Warface/Installer/Instalador_Patch_LevelUp_1.0.34.010.torrent";
 
             var gid1 = "";
@@ -82,12 +82,6 @@ namespace Aria4net.Sample
             client.DownloadCompleted += (sender, eventArgs) =>
                 {
                     Console.WriteLine("Download concluido {0}", eventArgs.Status.Gid);
-                    using (var process = new Process())
-                    {
-                        process.StartInfo.FileName =
-                            eventArgs.Status.Files.FirstOrDefault(c => Path.GetExtension(c.Path) == ".exe").Path;
-                        process.Start();
-                    }
                 };
             client.DownloadError += (sender, e) =>
                 {
@@ -100,7 +94,7 @@ namespace Aria4net.Sample
                     }
                 };
             
-            gid1 = client.AddTorrent(url1);
+            gid1 = client.AddUrl(url1);
             //gid2 = client.AddTorrent(url2);
 
             Console.ReadKey();

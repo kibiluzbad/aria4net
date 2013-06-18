@@ -41,75 +41,77 @@ namespace Aria4net.Client
         public virtual string AddUrl(string url)
         {
             _logger.Info("Adicionando url {0}", url);
+
             string newGid = string.Empty;
             Aria2cDownloadStatus status = null;
-            var keys = new Queue<Guid>();
+            IDisposable subject = null;
 
-            keys.Enqueue(_watcher.Subscribe("aria2.onDownloadError", gid =>
-            {
-                if (gid != newGid) return;
-                status = GetStatus(newGid);
+            subject = _watcher.Subscribe(() => newGid,
+                                         gid => new Aria2cClientEventArgs
+                                             {
+                                                 Url = url,
+                                                 Status = GetStatus(gid)
+                                             },
+                                         args =>
+                                             {
+                                                 var progress = GetProgress(args.Status.Gid);
+                                                 args.Status.DownloadSpeed = progress.DownloadSpeed;
+                                                 args.Status.CompletedLength = progress.CompletedLength;
+                                                 args.Status.Status = progress.Status;
+                                                 args.Status.TotalLength = progress.TotalLength;
+                                                 return args;
+                                             },
+                                         args =>
+                                             {
+                                                 _logger.Info("Download da url {0} com gid {1} iniciado", args.Url,
+                                                              args.Status.Gid);
 
-                _logger.Info("Download da url {0} com gid {1} com erro. Código {2}", url, gid, status.ErrorCode);
+                                                 if (null != DownloadStarted) DownloadStarted.Invoke(this, args);
+                                             },
+                                         args => DownloadProgress(this, args),
+                                         args =>
+                                             {
+                                                 _logger.Info("Download da url {0} com gid {1} concluido.", args.Url,
+                                                              args.Status.Gid);
+                                                 _history.Remove(url);
 
-                Remove(gid);
+                                                 if (null != subject) subject.Dispose();
 
-                if (null != DownloadError)
-                    DownloadError(this, new Aria2cClientEventArgs
-                    {
-                        Status = status,
-                        Url = url
-                    });
-            }));
+                                                 if (null != DownloadCompleted)
+                                                     DownloadCompleted(this, args);
+                                             },
+                                         args =>
+                                             {
+                                                 Remove(args.Status.Gid);
 
-            keys.Enqueue(_watcher.Subscribe("aria2.onDownloadPause", gid =>
-            {
-                if (gid != newGid) return;
-                status = GetStatus(newGid);
+                                                 _logger.Error("Download da url {0} com gid {1} com erro.", args.Url,
+                                                               args.Status.Gid);
 
-                _logger.Info("Download da url {0} com gid {1} pausado.", url, gid);
+                                                 if (null != DownloadError)
+                                                     DownloadError(this, args);
+                                             },
+                                         args =>
+                                             {
+                                                 _history.Remove(args.Url);
+                                                 _logger.Info("Download da url {0} com gid {1} parado e removido.",
+                                                              args.Url, args.Status.Gid);
 
-                if (null != DownloadPaused)
-                    DownloadPaused(this, new Aria2cClientEventArgs { Status = status });
-            }));
+                                                 if (null != DownloadStoped)
+                                                     DownloadStoped(this,
+                                                                    new Aria2cClientEventArgs
+                                                                        {
+                                                                            Url = url,
+                                                                            Status = status
+                                                                        });
+                                             },
+                                         args =>
+                                             {
+                                                 _logger.Info("Download da url {0} com gid {1} pausado.", args.Url,
+                                                              args.Status.Gid);
 
-            keys.Enqueue(_watcher.Subscribe("aria2.onDownloadStop", gid =>
-            {
-                if (gid != newGid) return;
-                status = GetStatus(newGid);
-
-                _history.Remove(url);
-                _logger.Info("Download da url {0} com gid {1} parado e removido.", url, gid);
-
-                if (null != DownloadStoped) DownloadStoped(this, new Aria2cClientEventArgs { Status = status });
-            }));
-
-            keys.Enqueue(_watcher.Subscribe("aria2.onDownloadStart", gid =>
-            {
-                if (gid != newGid) return;
-
-                _logger.Info("Download da url {0} com gid {1} iniciado", url, gid);
-
-                status = GetStatus(newGid);
-
-                var eventArgs = new Aria2cClientEventArgs { Status = status };
-
-                if (null != DownloadStarted) DownloadStarted.Invoke(this, eventArgs);
-
-                StartReportingProgress(eventArgs);
-            }));
-
-            keys.Enqueue(_watcher.Subscribe("aria2.onDownloadComplete", gid =>
-            {
-                if (gid != newGid) return;
-
-                status = GetStatus(newGid);
-
-                _logger.Info("Download da url {0} com gid {1} concluido", url, gid);
-                _history.Remove(url);
-
-                if (null != DownloadCompleted) DownloadCompleted(this, new Aria2cClientEventArgs { Status = status });
-            }));
+                                                 if (null != DownloadPaused)
+                                                     DownloadPaused(this, args);
+                                             });
 
             IRestResponse response = _restClient.Execute(CreateRequest("aria2.addUri", new List<string[]>
                 {
@@ -121,8 +123,8 @@ namespace Aria4net.Client
             if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
 
             newGid = result.Result;
-            
-            _history.Add(url,result);
+
+            _history.Add(url, result);
 
             return newGid;
         }
@@ -188,99 +190,103 @@ namespace Aria4net.Client
             string newGid = string.Empty;
             Aria2cDownloadStatus status = null;
             var keys = new Queue<Guid>();
+            IDisposable subject = null;
 
-            keys.Enqueue(_watcher.Subscribe("aria2.onDownloadError", gid =>
-            {
-                if (gid != newGid) return;
+            //keys.Enqueue(_watcher.Subscribe("aria2.onDownloadError", gid =>
+            //{
+            //    if (gid != newGid) return;
 
-                status = GetStatus(newGid);
+            //    status = GetStatus(newGid);
 
-                Remove(newGid);
-                
-                _logger.Error( "Download da url {0} com gid {1} com erro.", path, gid);
+            //    Remove(newGid);
 
-                if (null != DownloadError)
-                    DownloadError(this, new Aria2cClientEventArgs
-                    {
-                        Status = status,
-                        Url = path
-                    });
-            }));
+            //    _logger.Error( "Download da url {0} com gid {1} com erro.", path, gid);
 
-            keys.Enqueue(_watcher.Subscribe("aria2.onDownloadPause", gid =>
-            {
-                if (gid != newGid) return;
+            //    if (null != DownloadError)
+            //        DownloadError(this, new Aria2cClientEventArgs
+            //        {
+            //            Status = status,
+            //            Url = path
+            //        });
+            //}));
 
-                status = GetStatus(newGid);
+            //keys.Enqueue(_watcher.Subscribe("aria2.onDownloadPause", gid =>
+            //{
+            //    if (gid != newGid) return;
 
-                _logger.Info("Download da url {0} com gid {1} pausado.", path, gid);
+            //    status = GetStatus(newGid);
 
-                if (null != DownloadPaused)
-                    DownloadPaused(this, new Aria2cClientEventArgs
-                    {
-                        Status = status,
-                        Url = path
-                    });
-            }));
+            //    _logger.Info("Download da url {0} com gid {1} pausado.", path, gid);
 
-            keys.Enqueue(_watcher.Subscribe("aria2.onDownloadStop", gid =>
-            {
-                if (gid != newGid) return;
+            //    if (null != DownloadPaused)
+            //        DownloadPaused(this, new Aria2cClientEventArgs
+            //        {
+            //            Status = status,
+            //            Url = path
+            //        });
+            //}));
 
-                status = GetStatus(newGid);
+            //keys.Enqueue(_watcher.Subscribe("aria2.onDownloadStop", gid =>
+            //{
+            //    if (gid != newGid) return;
 
-                _history.Remove(path);
+            //    status = GetStatus(newGid);
 
-                _logger.Info("Download da url {0} com gid {1} parado e removido.", path, gid);
+            //    _history.Remove(path);
 
-                if (null != DownloadStoped)
-                    DownloadStoped(this, new Aria2cClientEventArgs
-                    {
-                        Status = status,
-                        Url = path
-                    });
-            }));
+            //    _logger.Info("Download da url {0} com gid {1} parado e removido.", path, gid);
 
-            keys.Enqueue(_watcher.Subscribe("aria2.onDownloadStart", gid =>
-            {
-                if (gid != newGid) return;
+            //    if (null != DownloadStoped)
+            //        DownloadStoped(this, new Aria2cClientEventArgs
+            //        {
+            //            Status = status,
+            //            Url = path
+            //        });
+            //}));
 
-                status = GetStatus(gid);
+            //keys.Enqueue(_watcher.Subscribe("aria2.onDownloadStart", gid =>
+            //{
+            //    if (gid != newGid) return;
 
-                _logger.Info("Download da url {0} com gid {1} iniciado.", path, gid);
-                var eventArgs =
-                    new Aria2cClientEventArgs
-                    {
-                        Status = status,
-                        Url = path
-                    };
+            //    status = GetStatus(gid);
 
-                if (null != DownloadStarted) DownloadStarted.Invoke(this, eventArgs);
+            //    _logger.Info("Download da url {0} com gid {1} iniciado.", path, gid);
+            //    var eventArgs =
+            //        new Aria2cClientEventArgs
+            //        {
+            //            Status = status,
+            //            Url = path
+            //        };
 
-                StartReportingProgress(eventArgs);
-            }));
+            //    if (null != DownloadStarted) DownloadStarted.Invoke(this, eventArgs);
 
-            keys.Enqueue(_watcher.Subscribe("aria2.onBtDownloadComplete", gid =>
-            {
-                if (gid != newGid) return;
+            //    StartReportingProgress(eventArgs);
+            //}));
 
-                status = GetStatus(newGid);
+            //keys.Enqueue(_watcher.Subscribe("aria2.onBtDownloadComplete", gid =>
+            //{
+            //    if (gid != newGid) return;
 
-                _logger.Info("Download da url {0} com gid {1} concluido.", path, gid);
+            //    status = GetStatus(newGid);
 
-                _history.Remove(path);
+            //    _logger.Info("Download da url {0} com gid {1} concluido.", path, gid);
 
-                _watcher.Unsubscribe(keys);
+            //    _history.Remove(path);
 
-                if (null != DownloadCompleted)
-                    DownloadCompleted(this, new Aria2cClientEventArgs
-                    {
-                        Status = status,
-                        Url = path
-                    });
-            }));
+            //    _watcher.Unsubscribe(keys);
 
-            IRestResponse response = _restClient.Execute(CreateRequest("aria2.addTorrent", new[] {Convert.ToBase64String(torrent)}));
+            //    if (null != DownloadCompleted)
+            //        DownloadCompleted(this, new Aria2cClientEventArgs
+            //        {
+            //            Status = status,
+            //            Url = path
+            //        });
+            //}));
+
+            
+
+            IRestResponse response =
+                _restClient.Execute(CreateRequest("aria2.addTorrent", new[] {Convert.ToBase64String(torrent)}));
 
             var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(response.Content);
 
@@ -397,48 +403,6 @@ namespace Aria4net.Client
             if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
 
             return result.Result;
-        }
-
-        protected virtual void StartReportingProgress(Aria2cClientEventArgs eventArgs)
-        {
-            _logger.Info("Observando progresso de {0}.", eventArgs.Status.Gid);
-
-            var scheduler = Scheduler.ThreadPool;
-
-            IDisposable subscripton = null;
-
-            subscripton = scheduler.Schedule(new TimeSpan(0, 0, 0, 0, 500), () =>
-                {
-                    while (!eventArgs.Status.Completed
-                     && _history.ContainsKey(eventArgs.Url))
-                    {
-                        try
-                        {
-                            var result = GetProgress(eventArgs.Status.Gid);
-                            eventArgs.Status.CompletedLength = result.CompletedLength;
-                            eventArgs.Status.DownloadSpeed = result.DownloadSpeed;
-
-                            if (null != DownloadProgress) DownloadProgress.Invoke(this, eventArgs);
-
-                            Thread.Sleep(500);
-                        }
-                        catch (Aria2cException ex)
-                        {
-                            _logger.FatalException(ex.Message, ex);
-                            break;
-                        }
-                    }
-
-                    if (_history.ContainsKey(eventArgs.Url)
-                        && eventArgs.Status.Completed)
-                    {
-                        if (null != DownloadCompleted) DownloadCompleted(this, eventArgs);                    
-                    }
-
-                    if(null != subscripton) subscripton.Dispose();
-                });
-
-            
         }
 
         private byte[] GetTorrent(string path)
