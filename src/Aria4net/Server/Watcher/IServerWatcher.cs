@@ -12,7 +12,7 @@ namespace Aria4net.Server.Watcher
 
         IDisposable Subscribe(Func<string> keySelector,
                               Func<string, Aria2cClientEventArgs> getData,
-                              Func<Aria2cClientEventArgs, Aria2cClientEventArgs> getProgress,
+                              Func<Aria2cClientEventArgs, Aria2cClientEventArgs> getProgress = null,
                               Action<Aria2cClientEventArgs> started = null,
                               Action<Aria2cClientEventArgs> progress = null,
                               Action<Aria2cClientEventArgs> completed = null,

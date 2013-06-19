@@ -123,8 +123,8 @@ namespace Aria4net.Server.Watcher
 
 
         public virtual IDisposable Subscribe(Func<string> keySelector,
-                                             Func<string,Aria2cClientEventArgs> getData,
-                                             Func<Aria2cClientEventArgs, Aria2cClientEventArgs> getProgress,
+                                             Func<string, Aria2cClientEventArgs> getData,
+                                             Func<Aria2cClientEventArgs, Aria2cClientEventArgs> getProgress = null,
                                              Action<Aria2cClientEventArgs> started = null,
                                              Action<Aria2cClientEventArgs> progress = null,
                                              Action<Aria2cClientEventArgs> completed = null,
@@ -132,6 +132,8 @@ namespace Aria4net.Server.Watcher
                                              Action<Aria2cClientEventArgs> stoped = null,
                                              Action<Aria2cClientEventArgs> paused = null)
         {
+            IDisposable token = null;
+
             return Observable.FromEventPattern<MessageReceivedEventArgs>(handler => _socket.MessageReceived += handler,
                                                                          handler => _socket.MessageReceived -= handler)
                              .Select(c => MessageDeserializer(c.EventArgs))
@@ -140,7 +142,7 @@ namespace Aria4net.Server.Watcher
                                  message =>
                                      {
                                          var gid = message.Params.FirstOrDefault().Gid;
-
+                                         
                                          if (gid != keySelector()) return;
 
                                          switch (message.Method)
@@ -157,32 +159,51 @@ namespace Aria4net.Server.Watcher
                                              case "aria2.onBtDownloadComplete":
                                              case "aria2.onDownloadComplete":
                                                  if (null != completed) completed(getData(gid));
+                                                 if (null != token) token.Dispose();
                                                  break;
                                              case "aria2.onDownloadStart":
                                                  var args = getData(gid);
+                                                 
                                                  if (null != started) started(args);
-                                                 StartReportingProgress(args, getProgress, progress);
+                                                 
+                                                 if (args.Status.Completed)
+                                                 {
+                                                     if (null != completed) completed(args);
+                                                     return;
+                                                 }
+
+                                                 if (null == getProgress) return;
+
+                                                 token = StartReportingProgress(args, getProgress, progress);
+
+                                                 if (getProgress(args).Status.Completed)
+                                                 {
+                                                     token.Dispose();
+                                                     if (null != completed) completed(args);
+                                                 }
                                                  break;
                                          }
-                                     });
+                                     },
+                                 ex =>
+                                     {
+                                         if (null != OnError) OnError(this, new ErrorEventArgs(ex));
+                                     }
+                                 ,
+                                 () => _logger.Info("Observable liberado."));
         }
 
-        protected virtual void StartReportingProgress(Aria2cClientEventArgs args, Func<Aria2cClientEventArgs, Aria2cClientEventArgs> getProgress, Action<Aria2cClientEventArgs> progress)
+        protected virtual IDisposable StartReportingProgress(Aria2cClientEventArgs args, Func<Aria2cClientEventArgs, Aria2cClientEventArgs> getProgress, Action<Aria2cClientEventArgs> progress)
         {
             _logger.Info("Observando progresso de {0}.", args.Status.Gid);
 
             var scheduler = Scheduler.ThreadPool;
-
-            IDisposable subscripton = null;
 
             Action<Action> work = self =>
                 {
                     Aria2cClientEventArgs eventArgs = getProgress(args);
 
                     if (eventArgs.Status.Completed)
-                    {
-                        if (null != subscripton) subscripton.Dispose();
-                        return;
+                    {   return;
                     }
 
                     progress(eventArgs);
@@ -190,7 +211,7 @@ namespace Aria4net.Server.Watcher
                     self();
                 };
 
-            subscripton = scheduler.Schedule(work);
+            return scheduler.Schedule(work);
         }
 
         public virtual Guid Subscribe(string method, Action<string> action)
