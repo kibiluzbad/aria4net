@@ -8,8 +8,6 @@ namespace Aria4net.Server.Watcher
 {
     public interface IServerWatcher
     {
-        Guid Subscribe(string method, Action<string> action);
-
         IDisposable Subscribe(Func<string> keySelector,
                               Func<string, Aria2cClientEventArgs> getData,
                               Func<Aria2cClientEventArgs, Aria2cClientEventArgs> getProgress = null,
@@ -19,12 +17,9 @@ namespace Aria4net.Server.Watcher
                               Action<Aria2cClientEventArgs> error = null,
                               Action<Aria2cClientEventArgs> stoped = null,
                               Action<Aria2cClientEventArgs> paused = null);
-
-        void Unsubscribe(Queue<Guid> keys);
-        void Unsubscribe(string method);
-        void Unsubscribe(string method, Guid key);
-
+        
         IServerWatcher Connect();
+        IServerWatcher Disconnect();
 
         event EventHandler<EventArgs> ConnectionOpened;
         event EventHandler<EventArgs> ConnectionClosed;
