@@ -22,7 +22,6 @@ namespace Aria4net.Sample
         {
             string appRoot = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)))));
 
-            IDictionary<string, Aria2cResult<string>> downloadHistory = new Dictionary<string, Aria2cResult<string>>();
             var logger = LogManager.GetCurrentClassLogger();
 
             var config = new Aria2cConfig
@@ -56,7 +55,6 @@ namespace Aria4net.Sample
 
             IClient client = new Aria2cJsonRpcClient(new RestClient(),
                                                      config,
-                                                     downloadHistory,
                                                      watcher,
                                                      logger);
 

@@ -177,7 +177,7 @@ namespace Aria4net.Server.Watcher
                     }
 
                     progress(eventArgs);
-                    Thread.Sleep(500);
+                    Thread.Sleep(1000);
                     self();
                 };
 

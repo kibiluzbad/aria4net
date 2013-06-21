@@ -54,7 +54,6 @@ namespace Aria4net.IntegrationTests
             string appRoot = @"C:\work\aria4net";
             
 
-            IDictionary<string, Aria2cResult<string>> downloadHistory = new Dictionary<string, Aria2cResult<string>>();
             var logger = LogManager.GetCurrentClassLogger();
             
             
@@ -82,7 +81,6 @@ namespace Aria4net.IntegrationTests
 
             IClient client = new Aria2cJsonRpcClient(new RestClient(),
                                                      config,
-                                                     downloadHistory,
                                                      watcher,
                                                      logger);
 
@@ -110,29 +108,11 @@ namespace Aria4net.IntegrationTests
             
             IClient client = new Aria2cJsonRpcClient(new RestClient(),
                                                    config,
-                                                   new Dictionary<string, Aria2cResult<string>>(), 
                                                    new Aria2cWebSocketWatcher(config,
                                                                               logger).Connect(),
                                                    logger);
 
             var status = client.GetStatus("6ad3263090c0ea45");
-        }
-
-        [Test]
-        public void teste()
-        {
-            var fat = Unfold(0, i => i + (i + 1));
-            var l = fat.Take(10).ToList();
-        }
-
-        private static IEnumerable<T> Unfold<T>(T seed, Func<T, T> accumulator)
-        {
-            var nextValue = seed;
-            while (true)
-            {
-                nextValue = accumulator(nextValue);
-                yield return nextValue;
-            }
         }
     }
 }

@@ -29,7 +29,6 @@ namespace Aria4net.Tests
             
             var mockRestClient = new Mock<IRestClient>();
             var fakeRestResponse = new Mock<IRestResponse<Aria2cResult<string>>>();
-            var fakeDownloadQueue = new Mock<IDictionary<string, Aria2cResult<string>>>();
             var fakeServerWatcher = new Mock<IServerWatcher>();
             var fakeLogger = new Mock<Logger>();
 
@@ -48,7 +47,6 @@ namespace Aria4net.Tests
                                                        JsonrpcUrl = "http://localhost:6800/jsonrpc",
                                                        JsonrpcVersion = jsonrpcVersion
                                                    },
-                                               fakeDownloadQueue.Object,
                                                fakeServerWatcher.Object, 
                                                fakeLogger.Object);
 
@@ -67,7 +65,6 @@ namespace Aria4net.Tests
 
             var fakeRestClient = new Mock<IRestClient>();
             var fakeRestResponse = new Mock<IRestResponse>();
-            var mockDownloadQueue = new Mock<IDictionary<string, Aria2cResult<string>>>();
             var fakeServerWatcher = new Mock<IServerWatcher>();
             var fakeLogger = new Mock<Logger>();
 
@@ -86,14 +83,10 @@ namespace Aria4net.Tests
                                                    JsonrpcUrl = "http://localhost:6800/jsonrpc",
                                                    JsonrpcVersion = jsonrpcVersion
                                                },
-                                               mockDownloadQueue.Object,
                                                fakeServerWatcher.Object,
                                                fakeLogger.Object);
 
             client.AddUrl(url);
-
-            mockDownloadQueue.Verify(c => c.Add(It.IsAny<string>(), It.IsAny<Aria2cResult<string>>()),
-                                 Times.Once());
         }
 
         //TODO: Update test
@@ -106,7 +99,6 @@ namespace Aria4net.Tests
 
             var fakeRestClient = new Mock<IRestClient>();
             var fakeRestResponse = new Mock<IRestResponse>();
-            var fakeDownloadQueue = new Mock<IDictionary<string, Aria2cResult<string>>>();
             var mockServerWatcher = new Mock<IServerWatcher>();
             var fakeLogger = new Mock<Logger>();
 
@@ -125,7 +117,6 @@ namespace Aria4net.Tests
                                                    JsonrpcUrl = "http://localhost:6800/jsonrpc",
                                                    JsonrpcVersion = jsonrpcVersion
                                                },
-                                               fakeDownloadQueue.Object,
                                                mockServerWatcher.Object,
                                                fakeLogger.Object);
 

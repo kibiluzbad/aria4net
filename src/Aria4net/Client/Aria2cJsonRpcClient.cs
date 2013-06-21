@@ -21,19 +21,16 @@ namespace Aria4net.Client
     {
         private readonly IRestClient _restClient;
         private readonly Aria2cConfig _config;
-        private readonly IDictionary<string, Aria2cResult<string>> _history;
         private readonly IServerWatcher _watcher;
         private readonly Logger _logger;
 
         public Aria2cJsonRpcClient(IRestClient restClient,
                                    Aria2cConfig config,
-                                   IDictionary<string, Aria2cResult<string>> history,
                                    IServerWatcher watcher,
                                    Logger logger)
         {
             _restClient = restClient;
             _config = config;
-            _history = history;
             _watcher = watcher;
             _logger = logger;
         }
@@ -84,7 +81,7 @@ namespace Aria4net.Client
 
         protected virtual void OnProgress(Aria2cClientEventArgs args)
         {
-            DownloadProgress(this, args);
+            if (null != DownloadProgress) DownloadProgress(this, args);
         }
 
         protected virtual void OnPaused(Aria2cClientEventArgs args)
@@ -97,7 +94,6 @@ namespace Aria4net.Client
 
         protected virtual void OnStoped(Aria2cClientEventArgs args)
         {
-            _history.Remove(args.Url);
             _logger.Info("Download da url {0} com gid {1} parado e removido.", args.Url, args.Status.Gid);
 
             if (null != DownloadStoped)
@@ -156,7 +152,7 @@ namespace Aria4net.Client
 
                                                if (null != token) token.Dispose();
 
-                                               AddTorrent(GetTorrent(torrentPath), torrentPath);
+                                               AddTorrentFile(torrentPath);
                                            },
                                        error: args =>
                                            {
@@ -183,8 +179,10 @@ namespace Aria4net.Client
             return newGid;
         }
 
-        public virtual string AddTorrent(byte[] torrent, string path)
+        public virtual string AddTorrentFile(string path)
         {
+
+            byte[] torrent = GetTorrent(path);
             string newGid = string.Empty;
             IDisposable token = null;
 
@@ -250,8 +248,12 @@ namespace Aria4net.Client
             _logger.Info("Recuperando status de {0}.", gid);
             IRestResponse response = _restClient.Execute(CreateRequest("aria2.tellStatus", new[] {gid}));
 
+            if (0 == response.StatusCode) return GetStatus(gid);
+
             var result =
                 Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<Aria2cDownloadStatus>>(response.Content);
+
+            
 
             if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
 
@@ -260,8 +262,6 @@ namespace Aria4net.Client
 
         public virtual Aria2cDownloadStatus GetProgress(string gid)
         {
-            _logger.Info("Recuperando progresso de {0}.", gid);
-
             IRestResponse response = _restClient.Execute(CreateRequest("aria2.tellStatus", new List<object>
                 {
                     gid,
@@ -273,6 +273,8 @@ namespace Aria4net.Client
                             "downloadSpeed"
                         }
                 }));
+
+            if (0 == response.StatusCode) return GetProgress(gid);
 
             var result =
                 Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<Aria2cDownloadStatus>>(response.Content);

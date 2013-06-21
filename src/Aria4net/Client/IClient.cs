@@ -8,6 +8,7 @@ namespace Aria4net.Client
     {
         string AddUrl(string url);
         string AddTorrent(string url);
+        string AddTorrentFile(string path);
         string Pause(string gid);
         string Resume(string gid);
         string Stop(string gid);
