@@ -26,7 +26,7 @@ end
 # Albacore flow controlling tasks
 #--------------------------------------
 desc 'Run default'
-task :default => [:buildIt, :publish, :testIt]
+task :default => [:buildIt, :publish]
 #--------------------------------------
 task :testIt => [:unittests]
 
@@ -62,7 +62,10 @@ end
 task :publish do |msb|
     Dir.rmdir(@env_buildfolderpath)
 	Dir.mkdir(@env_buildfolderpath)
-    Dir.mkdir("#{@env_buildfolderpath}/binaries")
+    Dir.mkdir("#{@env_buildfolderpath}/lib")
+	Dir.mkdir("#{@env_buildfolderpath}/lib/tools")
+	Dir.mkdir("#{@env_buildfolderpath}/lib/tools/aria2-1.16.3-win-32bit-build1")	
 
-    FileUtils.cp_r FileList["src/**/#{@env_buildconfigname}/*.dll", "src/**/#{@env_buildconfigname}/*.pdb", "src/**/*.ps1"].exclude(/obj\//).exclude(/.Tests/), "#{@env_buildfolderpath}/binaries"
+    FileUtils.cp_r FileList["src/**/#{@env_buildconfigname}/*.dll", "src/**/*.ps1"].exclude(/obj\//).exclude(/.Tests/), "#{@env_buildfolderpath}/lib"
+	FileUtils.cp_r FileList["tools/aria2-1.16.3-win-32bit-build1/*"], "#{@env_buildfolderpath}/lib/tools/aria2-1.16.3-win-32bit-build1"
 end

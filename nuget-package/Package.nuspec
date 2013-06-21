@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Aria4net</id>
+    <version>1.0.1</version>
+    <authors>kibiluzbad</authors>
+    <owners>kibiluzbad</owners>
+    <licenseUrl>http://bitbucket.org/kibiluzbad/xango/src/740b974898b9/LICENSE.txt</licenseUrl>
+    <projectUrl>https://github.com/kibiluzbad/aria4net</projectUrl>    
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Aria2c wrapper for .Net.</description>
+    <tags>aria2c torrent downloadmanager download</tags>
+    <dependencies>
+      <dependency id="Newtonsoft.Json" version="[5.0.6]"/>
+	  <dependency id="NLog" version="[2.0.1.2]"/>
+	  <dependency id="RestSharp" version="[104.1]"/>
+	  <dependency id="Rx-Main" version="[1.0.11226]"/>
+	  <dependency id="WebSocket4Net" version="[0.8]"/>
+    </dependencies>
+  </metadata>
+</package>
