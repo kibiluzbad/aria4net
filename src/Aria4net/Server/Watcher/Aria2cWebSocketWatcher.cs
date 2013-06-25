@@ -144,13 +144,7 @@ namespace Aria4net.Server.Watcher
 
                                                  if (null == getProgress) return;
 
-                                                 token = StartReportingProgress(args, getProgress, progress);
-
-                                                 if (getProgress(args).Status.Completed)
-                                                 {
-                                                     token.Dispose();
-                                                     if (null != completed) completed(args);
-                                                 }
+                                                 token = StartReportingProgress(args, getProgress, progress, completed);
                                                  break;
                                          }
                                      },
@@ -162,18 +156,25 @@ namespace Aria4net.Server.Watcher
                                  () => _logger.Info("Observable liberado."));
         }
 
-        protected virtual IDisposable StartReportingProgress(Aria2cClientEventArgs args, Func<Aria2cClientEventArgs, Aria2cClientEventArgs> getProgress, Action<Aria2cClientEventArgs> progress)
+        protected virtual IDisposable StartReportingProgress(Aria2cClientEventArgs args,
+            Func<Aria2cClientEventArgs, Aria2cClientEventArgs> getProgress,
+            Action<Aria2cClientEventArgs> progress,
+            Action<Aria2cClientEventArgs> completed)
         {
             _logger.Info("Observando progresso de {0}.", args.Status.Gid);
 
             var scheduler = Scheduler.ThreadPool;
+            IDisposable token = null;
 
             Action<Action> work = self =>
                 {
                     Aria2cClientEventArgs eventArgs = getProgress(args);
 
                     if (eventArgs.Status.Completed)
-                    {   return;
+                    {
+                        completed(eventArgs);
+                        token.Dispose();
+                        return;
                     }
 
                     progress(eventArgs);
@@ -181,7 +182,7 @@ namespace Aria4net.Server.Watcher
                     self();
                 };
 
-            return scheduler.Schedule(work);
+            return token = scheduler.Schedule(work);
         }
 
         public void Dispose()
