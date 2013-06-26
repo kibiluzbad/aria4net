@@ -59,7 +59,7 @@ namespace Aria4net.Sample
                                                      logger);
 
             var url1 =
-                "ftp://download.warface.levelupgames.com.br/Warface/Installer/Instalador_Client_LevelUp_1.0.34.006.torrent";
+                "ftp://download.warface.levelupgames.com.br/Warface/Installer/Instalador_Client_LevelUp_1.0.34.011.torrent";
             //var url2 = "http://download.levelupgames.com.br/Warface/Installer/Instalador_Patch_LevelUp_1.0.34.010.torrent";
 
             var gid1 = "";

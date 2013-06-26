@@ -58,6 +58,15 @@ namespace Aria4net.Client
 
                                                if (null != token) token.Dispose();
 
+                                               try
+                                               {
+                                                   Remove(args.Status.Gid);
+                                               }
+                                               catch (Aria2cException aex)
+                                               {
+                                                   _logger.ErrorException(aex.Message, aex);
+                                               }
+
                                                if (null != DownloadCompleted)
                                                    DownloadCompleted(this, args);
                                            },
@@ -69,6 +78,12 @@ namespace Aria4net.Client
                 {
                     new[] {url}
                 }));
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                _logger.Error("Erro ao chamar aria2.addUri. Status code {0}: {1}", response.StatusCode, response.StatusDescription);
+                throw new Aria2cException((int)response.StatusCode, response.StatusDescription);
+            }
 
             var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(response.Content);
 
@@ -148,7 +163,14 @@ namespace Aria4net.Client
 
                                                string torrentPath = args.Status.Files.FirstOrDefault().Path;
 
-                                               Remove(args.Status.Gid);
+                                               try
+                                               {
+                                                   Remove(args.Status.Gid);
+                                               }
+                                               catch (Aria2cException aex)
+                                               {
+                                                   _logger.ErrorException(aex.Message, aex);
+                                               }
 
                                                if (null != token) token.Dispose();
 
@@ -169,6 +191,12 @@ namespace Aria4net.Client
                 {
                     new[] {url}
                 }));
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                _logger.Error("Erro ao chamar aria2.addUri. Status code {0}: {1}",response.StatusCode, response.StatusDescription);
+                throw new Aria2cException((int)response.StatusCode, response.StatusDescription);
+            }
 
             var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(response.Content);
 
@@ -202,6 +230,15 @@ namespace Aria4net.Client
 
                                        if (null != token) token.Dispose();
 
+                                       try
+                                       {
+                                           Remove(args.Status.Gid);
+                                       }
+                                       catch (Aria2cException aex)
+                                       {
+                                           _logger.ErrorException(aex.Message,aex);
+                                       }
+
                                        if (null != DownloadCompleted)
                                            DownloadCompleted(this, args);
                                    },
@@ -211,6 +248,12 @@ namespace Aria4net.Client
 
             IRestResponse response =
                 _restClient.Execute(CreateRequest("aria2.addTorrent", new[] {Convert.ToBase64String(torrent)}));
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                _logger.Error("Erro ao chamar aria2.addTorrent. Status code {0}: {1}", response.StatusCode, response.StatusDescription);
+                throw new Aria2cException((int)response.StatusCode, response.StatusDescription);
+            }
 
             var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(response.Content);
 

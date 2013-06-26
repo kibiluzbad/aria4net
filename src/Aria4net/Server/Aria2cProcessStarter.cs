@@ -45,7 +45,7 @@ namespace Aria4net.Server
         {
             Logger.Info("Definindo argumentos do processo.");
 
-            return string.Format("--enable-rpc --dir=\"{0}\" --remove-control-file=true --auto-save-interval=0 --listen-port={1} --rpc-listen-port={2} --follow-torrent=false --file-allocation=prealloc -V -c --show-console-readout=false --stop-with-process={3}", DownloadedFilesDirPath.Trim(), _config.Port, _config.RpcPort, System.Diagnostics.Process.GetCurrentProcess().Id);
+            return string.Format("--enable-rpc --dir=\"{0}\" --remove-control-file=true --auto-save-interval=0 --listen-port={1} --rpc-listen-port={2} --follow-torrent=false --file-allocation=trunc -V -c --show-console-readout=false --stop-with-process={3}", DownloadedFilesDirPath.Trim(), _config.Port, _config.RpcPort, System.Diagnostics.Process.GetCurrentProcess().Id);
         }
    }
 }
