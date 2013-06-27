@@ -26,12 +26,11 @@ namespace Aria4net.Sample
 
             var config = new Aria2cConfig
                 {
-                    Executable = Path.Combine(appRoot, "tools\\aria2-1.16.3-win-32bit-build1\\aria2c.exe"),
+                    Executable = Path.Combine(appRoot,"tools\\aria2-1.16.3-win-32bit-build1\\aria2c.exe"),
                     Id = Guid.NewGuid().ToString(),
                     JsonrpcUrl = "http://localhost:6868/jsonrpc",
                     JsonrpcVersion = "2.0",
                     WebSocketUrl = "ws://localhost:6868/jsonrpc",
-                    Port = 7000,
                     RpcPort = 6868
                 };
 
@@ -40,7 +39,7 @@ namespace Aria4net.Sample
 
             IServer server = new Aria2cServer(
                 new Aria2cProcessStarter(
-                    new Aria2cFinder(config), 
+                    new Aria2cFinder(config, new DefaultPathFormatter(new WindowsPathTokenizer())), 
                     config, 
                     logger)
                     {

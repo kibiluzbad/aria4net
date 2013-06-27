@@ -68,14 +68,8 @@ namespace Aria4net.Server
         {
             _logger.Info("Executando regras de validação da inicialização do servidor");
             _serverValidationRunner.AddRule(GetRuleForJsonRpcPort());
-            _serverValidationRunner.AddRule(GetRuleForBittorrentPort());
         }
-
-        protected virtual IServerValidationRule GetRuleForBittorrentPort()
-        {
-            return new CheckTcpPortRule { Port = _config.Port };
-        }
-
+        
         protected virtual IServerValidationRule GetRuleForJsonRpcPort()
         {
             return new CheckTcpPortRule {Port = _config.RpcPort};

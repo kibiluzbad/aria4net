@@ -45,6 +45,7 @@
       <HintPath>..\packages\RestSharp.104.1\lib\net35\RestSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Reactive">
       <HintPath>..\packages\Rx-Main.1.0.11226\lib\Net35\System.Reactive.dll</HintPath>
@@ -70,6 +71,9 @@
     <Compile Include="Client\IClient.cs" />
     <Compile Include="Exceptions\Aria2cException.cs" />
     <Compile Include="Common\Aria2cParameter.cs" />
+    <Compile Include="Common\DefaultPathFormatter.cs" />
+    <Compile Include="Common\IPathFormatter.cs" />
+    <Compile Include="Common\ITokenizer.cs" />
     <Compile Include="Server\Watcher\Aria2cWebSocketMessage.cs" />
     <Compile Include="Server\Watcher\Aria2cWebSocketWatcher.cs" />
     <Compile Include="Server\Validation\CheckTcpPortRule.cs" />
@@ -87,6 +91,7 @@
     <Compile Include="Server\IServer.cs" />
     <Compile Include="Common\ProcessStarter.cs" />
     <Compile Include="Exceptions\TcpPortNotAvailableException.cs" />
+    <Compile Include="Common\WindowsPathTokenizer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

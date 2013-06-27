@@ -25,6 +25,7 @@ namespace Aria4net.IntegrationTests
         {
             string appRoot = @"C:\work\aria4net";
             var fakeWatcher = new Mock<IServerWatcher>();
+            var fakeFomatter = new Mock<IPathFormatter>();
 
             var logger = LogManager.GetCurrentClassLogger();
 
@@ -35,7 +36,7 @@ namespace Aria4net.IntegrationTests
 
             IServer server = new Aria2cServer(
                 new Aria2cProcessStarterWithWindow(
-                    new Aria2cFinder(config), config, logger),
+                    new Aria2cFinder(config, fakeFomatter.Object), config, logger),
                     new DefaultValidationRunner(), 
                     config,
                     logger,
@@ -52,7 +53,7 @@ namespace Aria4net.IntegrationTests
         public void Add_download()
         {
             string appRoot = @"C:\work\aria4net";
-            
+            var fakeFomatter = new Mock<IPathFormatter>();
 
             var logger = LogManager.GetCurrentClassLogger();
             
@@ -71,7 +72,7 @@ namespace Aria4net.IntegrationTests
 
             IServer server = new Aria2cServer(
                 new Aria2cProcessStarterWithWindow(
-                    new Aria2cFinder(config), config, logger) {DownloadedFilesDirPath = "c:\\temp"},
+                    new Aria2cFinder(config, fakeFomatter.Object), config, logger) {DownloadedFilesDirPath = "c:\\temp"},
                     new DefaultValidationRunner(), 
                     config,
                     logger,
@@ -98,8 +99,7 @@ namespace Aria4net.IntegrationTests
                 Executable = "",
                 Id = Guid.NewGuid().ToString(),
                 JsonrpcUrl = "http://localhost:6800/jsonrpc",
-                JsonrpcVersion = "2.0",
-                Port = 7001,
+                JsonrpcVersion = "2.0",                
                 RpcPort = 6800,
                 WebSocketUrl = "ws://localhost:6800/jsonrpc"
             };

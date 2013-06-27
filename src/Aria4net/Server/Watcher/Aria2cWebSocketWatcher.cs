@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using Aria4net.Client;
 using Aria4net.Common;
+using Aria4net.Exceptions;
 using NLog;
 using Newtonsoft.Json;
 using WebSocket4Net;
@@ -168,16 +169,26 @@ namespace Aria4net.Server.Watcher
 
             Action<Action> work = self =>
                 {
-                    Aria2cClientEventArgs eventArgs = getProgress(args);
-
-                    if (eventArgs.Status.Completed)
+                    try
                     {
-                        completed(eventArgs);
+                        Aria2cClientEventArgs eventArgs = getProgress(args);
+
+                        if (eventArgs.Status.Completed)
+                        {
+                            completed(eventArgs);
+                            token.Dispose();
+                            return;
+                        }
+
+                        progress(eventArgs);
+                    }
+                    catch (Aria2cException aex)
+                    {
+                        _logger.FatalException(aex.Message,aex);
                         token.Dispose();
                         return;
                     }
 
-                    progress(eventArgs);
                     Thread.Sleep(1000);
                     self();
                 };

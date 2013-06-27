@@ -10,6 +10,7 @@ using Aria4net.Common;
 using Aria4net.Exceptions;
 using Aria4net.Server;
 using Aria4net.Server.Watcher;
+using AustinHarris.JsonRpc;
 using NLog;
 using Newtonsoft.Json;
 using RestSharp;
@@ -305,7 +306,7 @@ namespace Aria4net.Client
 
         public virtual Aria2cDownloadStatus GetProgress(string gid)
         {
-            IRestResponse response = _restClient.Execute(CreateRequest("aria2.tellStatus", new List<object>
+            var parameteres = new List<object>
                 {
                     gid,
                     new[]
@@ -315,9 +316,16 @@ namespace Aria4net.Client
                             "totalLength",
                             "downloadSpeed"
                         }
-                }));
+                };
 
-            if (0 == response.StatusCode) return GetProgress(gid);
+            _restClient.DefaultParameters.Clear();
+
+            IRestResponse response = _restClient.Execute(CreateRequest("aria2.tellStatus",parameteres));
+
+            if (0 == response.StatusCode)
+            {
+                throw new Aria2cException((int)response.StatusCode, response.ErrorMessage);
+            }
 
             var result =
                 Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<Aria2cDownloadStatus>>(response.Content);

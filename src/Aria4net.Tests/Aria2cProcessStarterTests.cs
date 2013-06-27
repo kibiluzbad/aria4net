@@ -20,7 +20,7 @@ namespace Aria4net.Tests
         {
             var mockFileFinder = new Mock<IFileFinder>();
             var fakeLogger = new Mock<Logger>();
-            var config = new Aria2cConfig {Port = 7000};
+            var config = new Aria2cConfig {Port = "7000"};
 
             mockFileFinder
                 .Setup(c => c.Find())
@@ -41,7 +41,7 @@ namespace Aria4net.Tests
         {
             var fakeFileFinder = new Mock<IFileFinder>();
             var fakeLogger = new Mock<Logger>();
-            var config = new Aria2cConfig { Port = 7000 };
+            var config = new Aria2cConfig { Port = "7000" };
 
             fakeFileFinder
                 .Setup(c => c.Find())

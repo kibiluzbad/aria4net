@@ -11,7 +11,9 @@ namespace Aria4net.Server
         private readonly Aria2cConfig _config;
         public string DownloadedFilesDirPath { get; set; }
         
-        public Aria2cProcessStarter(IFileFinder fileFinder, Aria2cConfig config, Logger logger) : base(fileFinder, logger)
+        public Aria2cProcessStarter(IFileFinder fileFinder,
+            Aria2cConfig config, 
+            Logger logger) : base(fileFinder, logger)
         {
             _config = config;
         }
@@ -45,7 +47,14 @@ namespace Aria4net.Server
         {
             Logger.Info("Definindo argumentos do processo.");
 
-            return string.Format("--enable-rpc --dir=\"{0}\" --remove-control-file=true --auto-save-interval=0 --listen-port={1} --rpc-listen-port={2} --follow-torrent=false --file-allocation=trunc -V -c --show-console-readout=false --stop-with-process={3}", DownloadedFilesDirPath.Trim(), _config.Port, _config.RpcPort, System.Diagnostics.Process.GetCurrentProcess().Id);
+            return string.Format("--enable-rpc --dir=\"{0}\" --quiet --listen-port={1} --rpc-listen-port={2} --follow-torrent=false --file-allocation=trunc -c --show-console-readout=false --stop-with-process={3} --max-concurrent-downloads={4} --max-overall-download-limit={5} --max-overall-upload-limit={6}", 
+                DownloadedFilesDirPath.Trim(), 
+                _config.Port, 
+                _config.RpcPort, 
+                System.Diagnostics.Process.GetCurrentProcess().Id,
+                _config.ConcurrentDownloads,
+                _config.MaxDownloadLimit,
+                _config.MaxUploadLimit);
         }
    }
 }

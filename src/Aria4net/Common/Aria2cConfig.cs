@@ -1,21 +1,77 @@
-﻿namespace Aria4net.Common
+﻿using System.Configuration;
+
+namespace Aria4net.Common
 {
-    public class Aria2cConfig
+    public class Aria2cConfig : ConfigurationSection
     {
-        public string Executable { get; set; }
+        [ConfigurationProperty("executable" , IsRequired = true)]
+        public string Executable 
+        {
+            get { return (string) this["executable"]; }
+            set { this["executable"] = value; }
+        }
 
-        public string JsonrpcUrl { get; set; }
+        [ConfigurationProperty("jsonrpcUrl", DefaultValue = "http://localhost:6800/jsonrpc", IsRequired = false)]
+        public string JsonrpcUrl
+        {
+            get { return (string)this["jsonrpcUrl"]; }
+            set { this["jsonrpcUrl"] = value; }
+        }
 
-        public string JsonrpcVersion { get; set; }
+        [ConfigurationProperty("jsonrpcVersion", DefaultValue = "2.0", IsRequired = false)]
+        public string JsonrpcVersion
+        {
+            get { return (string)this["jsonrpcVersion"]; }
+            set { this["jsonrpcVersion"] = value; }
+        }
 
-        public string Id { get; set; }
+        [ConfigurationProperty("id", IsRequired = true)]
+        public string Id
+        {
+            get { return (string)this["id"]; }
+            set { this["id"] = value; }
+        }
 
-        public string WebSocketUrl { get; set; }
+        [ConfigurationProperty("webSocketUrl", DefaultValue = "ws://localhost:6800/jsonrpc", IsRequired = false)]
+        public string WebSocketUrl
+        {
+            get { return (string)this["webSocketUrl"]; }
+            set { this["webSocketUrl"] = value; }
+        }
 
-        public int Port { get; set; }
+        [ConfigurationProperty("port", DefaultValue = "6881-6999", IsRequired = false)]
+        public string Port
+        {
+            get { return (string)this["port"]; }
+            set { this["port"] = value; }
+        }
 
-        public int RpcPort { get; set; }
+        [ConfigurationProperty("rpcPort", DefaultValue = "6800", IsRequired = false)]
+        public int RpcPort
+        {
+            get { return (int)this["rpcPort"]; }
+            set { this["rpcPort"] = value; }
+        }
 
-        public string OtherParameters { get; set; }
+        [ConfigurationProperty("concurrentDownloads", DefaultValue = 5, IsRequired = false)]
+        public int ConcurrentDownloads
+        {
+            get { return (int)this["concurrentDownloads"]; }
+            set { this["concurrentDownloads"] = value; }
+        }
+
+        [ConfigurationProperty("maxDownloadLimit", DefaultValue = (long)0, IsRequired = false)]
+        public long MaxDownloadLimit
+        {
+            get { return (long)this["maxDownloadLimit"]; }
+            set { this["maxDownloadLimit"] = value; }
+        }
+
+        [ConfigurationProperty("maxUploadLimit", DefaultValue = (long)0, IsRequired = false)]
+        public long MaxUploadLimit
+        {
+            get { return (long)this["maxUploadLimit"]; }
+            set { this["maxUploadLimit"] = value; }
+        }
     }
 }

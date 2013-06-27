@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using Aria4net.Common;
 using Aria4net.Server;
+using Moq;
 using NUnit.Framework;
 
 namespace Aria4net.Tests
@@ -17,10 +18,12 @@ namespace Aria4net.Tests
         public void Can_find_file()
         {
             string currentAssemblyPath = Assembly.GetExecutingAssembly().Location;
+            var fakeFomatter = new Mock<IPathFormatter>();
+
             IFileFinder finder = new Aria2cFinder(new Aria2cConfig
                 {
-                    Executable = currentAssemblyPath
-                });
+                    Executable = currentAssemblyPath,
+                    }, fakeFomatter.Object);
 
             string path = finder.Find();
 
@@ -31,10 +34,12 @@ namespace Aria4net.Tests
         [Test]
         public void If_file_doesnt_exists_throws_exception()
         {
+            var fakeFomatter = new Mock<IPathFormatter>();
+
             IFileFinder finder = new Aria2cFinder(new Aria2cConfig
             {
                 Executable = "invalid path"
-            });
+            }, fakeFomatter.Object);
 
             Assert.That(() => finder.Find(), 
                 Throws.Exception.InstanceOf<FileNotFoundException>());
