@@ -129,8 +129,17 @@ namespace Aria4net.Server.Watcher
                                                  break;
                                              case "aria2.onBtDownloadComplete":
                                              case "aria2.onDownloadComplete":
-                                                 if (null != completed) completed(getData(gid));
                                                  if (null != token) token.Dispose();
+                                                 if (null != completed)
+                                                     try
+                                                     {
+                                                         completed(getData(gid));
+                                                     }
+                                                     catch (Aria2cException aex)
+                                                     {
+                                                         _logger.ErrorException(aex.Message,aex);
+                                                     }
+
                                                  break;
                                              case "aria2.onDownloadStart":
                                                  var args = getData(gid);

@@ -233,6 +233,7 @@ namespace Aria4net.Client
 
                                        try
                                        {
+                                           Stop(args.Status.Gid);
                                            Remove(args.Status.Gid);
                                        }
                                        catch (Aria2cException aex)
