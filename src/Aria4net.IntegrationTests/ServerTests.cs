@@ -72,7 +72,7 @@ namespace Aria4net.IntegrationTests
 
             IServer server = new Aria2cServer(
                 new Aria2cProcessStarterWithWindow(
-                    new Aria2cFinder(config, fakeFomatter.Object), config, logger) {DownloadedFilesDirPath = "c:\\temp"},
+                    new Aria2cFinder(config, fakeFomatter.Object), config, logger) { DownloadedFilesDirPath = () => "c:\\temp" },
                     new DefaultValidationRunner(), 
                     config,
                     logger,

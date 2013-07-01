@@ -28,7 +28,7 @@ namespace Aria4net.Tests
 
             IProcessStarter processStarter = new Aria2cProcessStarter(mockFileFinder.Object, config, fakeLogger.Object)
                 {
-                    DownloadedFilesDirPath = Assembly.GetExecutingAssembly().Location
+                    DownloadedFilesDirPath = () => Assembly.GetExecutingAssembly().Location
                 };
 
             processStarter.Run();
@@ -49,7 +49,7 @@ namespace Aria4net.Tests
 
             IProcessStarter processStarter = new Aria2cProcessStarter(fakeFileFinder.Object, config, fakeLogger.Object)
             {
-                DownloadedFilesDirPath = Assembly.GetExecutingAssembly().Location
+                DownloadedFilesDirPath = () => Assembly.GetExecutingAssembly().Location
             };
 
             processStarter.Run();

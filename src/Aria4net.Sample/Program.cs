@@ -40,7 +40,7 @@ namespace Aria4net.Sample
                     config, 
                     logger)
                     {
-                        DownloadedFilesDirPath = "c:\\temp"
+                        DownloadedFilesDirPath = () => "c:\\temp"
                     },
                     new DefaultValidationRunner(),
                     config,

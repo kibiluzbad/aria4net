@@ -9,7 +9,7 @@ namespace Aria4net.Server
     public class Aria2cProcessStarter : ProcessStarter
     {
         private readonly Aria2cConfig _config;
-        public string DownloadedFilesDirPath { get; set; }
+        public Func<string> DownloadedFilesDirPath { get; set; }
         
         public Aria2cProcessStarter(IFileFinder fileFinder,
             Aria2cConfig config, 
@@ -48,7 +48,7 @@ namespace Aria4net.Server
             Logger.Info("Definindo argumentos do processo.");
 
             return string.Format("--enable-rpc --dir=\"{0}\" --quiet --listen-port={1} --rpc-listen-port={2} --follow-torrent=false --file-allocation=trunc -c --show-console-readout=false --stop-with-process={3} --max-concurrent-downloads={4} --max-overall-download-limit={5} --max-overall-upload-limit={6}", 
-                DownloadedFilesDirPath.Trim(), 
+                DownloadedFilesDirPath().Trim(), 
                 _config.Port, 
                 _config.RpcPort, 
                 System.Diagnostics.Process.GetCurrentProcess().Id,
