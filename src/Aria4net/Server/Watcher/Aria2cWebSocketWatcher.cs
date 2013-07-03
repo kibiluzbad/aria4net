@@ -47,7 +47,7 @@ namespace Aria4net.Server.Watcher
         private void OnSocketOnError(object sender, ErrorEventArgs args)
         {
             if (null != OnError) OnError(this, args);
-            _logger.FatalException(args.Exception.Message, args.Exception);
+            _logger.DebugException(args.Exception.Message, args.Exception);
         }
 
         private void OnSocketOnClosed(object sender, EventArgs args)
