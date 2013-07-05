@@ -120,9 +120,11 @@ namespace Aria4net.Server.Watcher
                                          {
                                              case "aria2.onDownloadStop":
                                                  if (null != stoped) stoped(getData(gid));
+                                                 if (null != token) token.Dispose();
                                                  break;
                                              case "aria2.onDownloadPause":
                                                  if (null != paused) paused(getData(gid));
+                                                 if (null != token) token.Dispose();
                                                  break;
                                              case "aria2.onDownloadError":
                                                  if (null != error) error(getData(gid));
@@ -137,7 +139,7 @@ namespace Aria4net.Server.Watcher
                                                      }
                                                      catch (Aria2cException aex)
                                                      {
-                                                         _logger.ErrorException(aex.Message,aex);
+                                                         _logger.DebugException(aex.Message,aex);
                                                      }
 
                                                  break;
@@ -193,7 +195,7 @@ namespace Aria4net.Server.Watcher
                     }
                     catch (Aria2cException aex)
                     {
-                        _logger.FatalException(aex.Message,aex);
+                        _logger.DebugException(aex.Message,aex);
                         token.Dispose();
                         return;
                     }
