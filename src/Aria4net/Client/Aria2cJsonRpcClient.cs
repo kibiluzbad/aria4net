@@ -228,7 +228,7 @@ namespace Aria4net.Client
                                        }
                                        catch (Aria2cException aex)
                                        {
-                                           _logger.ErrorException(aex.Message,aex);
+                                           _logger.DebugException(aex.Message,aex);
                                        }
 
                                        if (null != DownloadCompleted)
@@ -391,7 +391,12 @@ namespace Aria4net.Client
             }
             catch (WebException wex)
             {
-                throw new Aria2cException((int)wex.Status, wex.Message, wex);
+                using (var reader = new StreamReader(wex.Response.GetResponseStream()))
+                {
+                    var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(reader.ReadToEnd());
+                    throw new Aria2cException(result.Error.Code, result.Error.Message, wex);
+                }
+                
             }
             
         }

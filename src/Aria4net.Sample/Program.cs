@@ -95,6 +95,7 @@ namespace Aria4net.Sample
                 };
             
             gid1 = client.AddTorrent(url1);
+            client.Stop("111");
             //gid2 = client.AddTorrent(url2);
 
             Console.ReadKey();
