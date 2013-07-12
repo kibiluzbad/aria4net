@@ -40,13 +40,12 @@ namespace Aria4net.Tests
             mockRestClient.Setup(c => c.Execute(It.IsAny<IRestRequest>()))
                           .Returns(fakeRestResponse.Object);
 
-            IClient client = new Aria2cJsonRpcClient(mockRestClient.Object,
-                                               new Aria2cConfig
-                                                   {
-                                                       Id = sessionId,
-                                                       JsonrpcUrl = "http://localhost:6800/jsonrpc",
-                                                       JsonrpcVersion = jsonrpcVersion
-                                                   },
+            IClient client = new Aria2cJsonRpcClient(new Aria2cConfig
+                {
+                    Id = sessionId,
+                    JsonrpcUrl = "http://localhost:6800/jsonrpc",
+                    JsonrpcVersion = jsonrpcVersion
+                },
                                                fakeServerWatcher.Object, 
                                                fakeLogger.Object);
 
@@ -76,13 +75,12 @@ namespace Aria4net.Tests
             fakeRestClient.Setup(c => c.Execute(It.IsAny<IRestRequest>()))
                           .Returns(fakeRestResponse.Object);
 
-            IClient client = new Aria2cJsonRpcClient(fakeRestClient.Object,
-                                               new Aria2cConfig
-                                               {
-                                                   Id = sessionId,
-                                                   JsonrpcUrl = "http://localhost:6800/jsonrpc",
-                                                   JsonrpcVersion = jsonrpcVersion
-                                               },
+            IClient client = new Aria2cJsonRpcClient(new Aria2cConfig
+                {
+                    Id = sessionId,
+                    JsonrpcUrl = "http://localhost:6800/jsonrpc",
+                    JsonrpcVersion = jsonrpcVersion
+                },
                                                fakeServerWatcher.Object,
                                                fakeLogger.Object);
 
@@ -110,13 +108,12 @@ namespace Aria4net.Tests
             fakeRestClient.Setup(c => c.Execute(It.IsAny<IRestRequest>()))
                           .Returns(fakeRestResponse.Object);
 
-            IClient client = new Aria2cJsonRpcClient(fakeRestClient.Object,
-                                               new Aria2cConfig
-                                               {
-                                                   Id = sessionId,
-                                                   JsonrpcUrl = "http://localhost:6800/jsonrpc",
-                                                   JsonrpcVersion = jsonrpcVersion
-                                               },
+            IClient client = new Aria2cJsonRpcClient(new Aria2cConfig
+                {
+                    Id = sessionId,
+                    JsonrpcUrl = "http://localhost:6800/jsonrpc",
+                    JsonrpcVersion = jsonrpcVersion
+                },
                                                mockServerWatcher.Object,
                                                fakeLogger.Object);
 

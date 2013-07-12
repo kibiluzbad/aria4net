@@ -13,7 +13,9 @@ namespace Aria4net.Common
 
         internal static IDictionary<string, Func<string, string>> Rules = new Dictionary<string, Func<string, string>>
             {
+// ReSharper disable AssignNullToNotNullAttribute
                 {"{app}",value => Regex.Replace(value,"\\{app\\}", Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))} 
+// ReSharper restore AssignNullToNotNullAttribute
             };
 
         public DefaultPathFormatter(ITokenizer tokenizer = null)

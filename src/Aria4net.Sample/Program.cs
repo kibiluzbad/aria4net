@@ -49,8 +49,7 @@ namespace Aria4net.Sample
 
             server.Start();
 
-            IClient client = new Aria2cJsonRpcClient(new RestClient(),
-                                                     config,
+            IClient client = new Aria2cJsonRpcClient(config,
                                                      watcher,
                                                      logger);
 

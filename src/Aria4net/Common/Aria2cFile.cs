@@ -1,4 +1,6 @@
-﻿using Aria4net.Client;
+﻿// ReSharper disable RedundantUsingDirective
+
+ // ReSharper restore RedundantUsingDirective
 
 namespace Aria4net.Common
 {

@@ -1,37 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reactive.Concurrency;
-using System.Threading;
-using System.Xml.Serialization;
 using Aria4net.Common;
 using Aria4net.Exceptions;
-using Aria4net.Server;
 using Aria4net.Server.Watcher;
-using AustinHarris.JsonRpc;
 using NLog;
 using Newtonsoft.Json;
 using RestSharp;
-using RestSharp.Serializers;
 
 namespace Aria4net.Client
 {
+// ReSharper disable InconsistentNaming
     public class Aria2cJsonRpcClient : IClient
+// ReSharper restore InconsistentNaming
     {
-        private readonly IRestClient _restClient;
         private readonly Aria2cConfig _config;
-        private readonly IServerWatcher _watcher;
         private readonly Logger _logger;
+        private readonly IServerWatcher _watcher;
 
-        public Aria2cJsonRpcClient(IRestClient restClient,
-                                   Aria2cConfig config,
-                                   IServerWatcher watcher,
-                                   Logger logger)
+        public Aria2cJsonRpcClient(Aria2cConfig config, IServerWatcher watcher, Logger logger)
         {
-            _restClient = restClient;
             _config = config;
             _watcher = watcher;
             _logger = logger;
@@ -80,65 +70,15 @@ namespace Aria4net.Client
                 {
                     new[] {url}
                 });
-            
 
-            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
+
+            var result = JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
 
             if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
 
             newGid = result.Result;
 
             return newGid;
-        }
-
-        protected virtual void OnProgress(Aria2cClientEventArgs args)
-        {
-            if (null != DownloadProgress) DownloadProgress(this, args);
-        }
-
-        protected virtual void OnPaused(Aria2cClientEventArgs args)
-        {
-            _logger.Info("Download da url {0} com gid {1} pausado.", args.Url, args.Status.Gid);
-
-            if (null != DownloadPaused)
-                DownloadPaused(this, args);
-        }
-
-        protected virtual void OnStoped(Aria2cClientEventArgs args)
-        {
-            _logger.Info("Download da url {0} com gid {1} parado e removido.", args.Url, args.Status.Gid);
-
-            if (null != DownloadStoped)
-                DownloadStoped(this, args);
-        }
-
-        protected virtual void OnError(Aria2cClientEventArgs args)
-        {
-            Remove(args.Status.Gid);
-
-            _logger.Debug("Download da url {0} com gid {1} com erro.", args.Url, args.Status.Gid);
-
-            if (null != DownloadError)
-                DownloadError(this, args);
-        }
-
-        protected virtual void OnStarted(Aria2cClientEventArgs args)
-        {
-            _logger.Info("Download da url {0} com gid {1} iniciado", args.Url, args.Status.Gid);
-
-            if (null != DownloadStarted) DownloadStarted.Invoke(this, args);
-        }
-
-        protected virtual Aria2cClientEventArgs GetProgress(Aria2cClientEventArgs args)
-        {
-            var progress = GetProgress(args.Status.Gid);
-
-            args.Status.DownloadSpeed = progress.DownloadSpeed;
-            args.Status.CompletedLength = progress.CompletedLength;
-            args.Status.Status = progress.Status;
-            args.Status.TotalLength = progress.TotalLength;
-
-            return args;
         }
 
         public virtual string AddTorrent(string url)
@@ -188,8 +128,8 @@ namespace Aria4net.Client
                 {
                     new[] {url}
                 });
-            
-            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
+
+            var result = JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
 
             if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
 
@@ -200,7 +140,6 @@ namespace Aria4net.Client
 
         public virtual string AddTorrentFile(string path)
         {
-
             byte[] torrent = GetTorrent(path);
             string newGid = string.Empty;
             IDisposable token = null;
@@ -228,7 +167,7 @@ namespace Aria4net.Client
                                        }
                                        catch (Aria2cException aex)
                                        {
-                                           _logger.DebugException(aex.Message,aex);
+                                           _logger.DebugException(aex.Message, aex);
                                        }
 
                                        if (null != DownloadCompleted)
@@ -240,7 +179,7 @@ namespace Aria4net.Client
 
             string response = CreateRequest("aria2.addTorrent", new[] {Convert.ToBase64String(torrent)});
 
-            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
+            var result = JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
 
             if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
 
@@ -254,7 +193,7 @@ namespace Aria4net.Client
             _logger.Info("Limpando downloads completos / com erro / removidos.");
             string response = CreateRequest<string>("aria2.purgeDownloadResult");
 
-            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
+            var result = JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
 
             return result.Result;
         }
@@ -264,7 +203,7 @@ namespace Aria4net.Client
             _logger.Info("Solicitando shutdown do servidor.");
             string response = CreateRequest<string>("aria2.forceShutdown");
 
-            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
+            var result = JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
 
             if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
 
@@ -277,11 +216,116 @@ namespace Aria4net.Client
             string response = CreateRequest("aria2.tellStatus", new[] {gid});
 
             var result =
-                Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<Aria2cDownloadStatus>>(response);
+                JsonConvert.DeserializeObject<Aria2cResult<Aria2cDownloadStatus>>(response);
 
             if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
 
             return result.Result;
+        }
+
+        public virtual string Pause(string gid)
+        {
+            _logger.Info("Pausando {0}.", gid);
+            string response = CreateRequest("aria2.forcePause", new[] {gid});
+
+            var result = JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
+
+            if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
+
+            return result.Result;
+        }
+
+        public virtual string Resume(string gid)
+        {
+            _logger.Info("Reiniciando {0}.", gid);
+            string response = CreateRequest("aria2.unpause", new[] {gid});
+
+            var result = JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
+
+            if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
+
+            return result.Result;
+        }
+
+        public virtual string Stop(string gid)
+        {
+            _logger.Info("Parando e removendo {0}.", gid);
+            string response = CreateRequest("aria2.forceRemove", new[] {gid});
+
+            var result = JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
+
+            if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
+
+            return result.Result;
+        }
+
+        public virtual string Remove(string gid)
+        {
+            _logger.Info("Excluindo dados de {0}.", gid);
+            string response = CreateRequest("aria2.removeDownloadResult", new[] {gid});
+
+            var result = JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
+
+            if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
+
+            return result.Result;
+        }
+
+        public event EventHandler<Aria2cClientEventArgs> DownloadCompleted;
+        public event EventHandler<Aria2cClientEventArgs> DownloadPaused;
+        public event EventHandler<Aria2cClientEventArgs> DownloadError;
+        public event EventHandler<Aria2cClientEventArgs> DownloadStoped;
+        public event EventHandler<Aria2cClientEventArgs> DownloadStarted;
+        public event EventHandler<Aria2cClientEventArgs> DownloadProgress;
+
+        protected virtual void OnProgress(Aria2cClientEventArgs args)
+        {
+            if (null != DownloadProgress) DownloadProgress(this, args);
+        }
+
+        protected virtual void OnPaused(Aria2cClientEventArgs args)
+        {
+            _logger.Info("Download da url {0} com gid {1} pausado.", args.Url, args.Status.Gid);
+
+            if (null != DownloadPaused)
+                DownloadPaused(this, args);
+        }
+
+        protected virtual void OnStoped(Aria2cClientEventArgs args)
+        {
+            _logger.Info("Download da url {0} com gid {1} parado e removido.", args.Url, args.Status.Gid);
+
+            if (null != DownloadStoped)
+                DownloadStoped(this, args);
+        }
+
+        protected virtual void OnError(Aria2cClientEventArgs args)
+        {
+            Remove(args.Status.Gid);
+
+            _logger.Debug("Download da url {0} com gid {1} com erro.", args.Url, args.Status.Gid);
+
+            if (null != DownloadError)
+                DownloadError(this, args);
+        }
+
+        protected virtual void OnStarted(Aria2cClientEventArgs args)
+        {
+            _logger.Info("Download da url {0} com gid {1} iniciado", args.Url, args.Status.Gid);
+
+            if (null != DownloadStarted) DownloadStarted.Invoke(this, args);
+        }
+
+        protected virtual Aria2cClientEventArgs GetProgress(Aria2cClientEventArgs args)
+        {
+            Aria2cDownloadStatus progress = GetProgress(args.Status.Gid);
+
+            args.Status.DownloadSpeed = progress.DownloadSpeed;
+            args.Status.CompletedLength = progress.CompletedLength;
+            args.Status.Status = progress.Status;
+            args.Status.TotalLength = progress.TotalLength;
+
+            return args;
         }
 
         public virtual Aria2cDownloadStatus GetProgress(string gid)
@@ -298,63 +342,14 @@ namespace Aria4net.Client
                         }
                 };
 
-            
 
-            string response = CreateRequest("aria2.tellStatus",parameteres);
+            string response = CreateRequest("aria2.tellStatus", parameteres);
 
             var result =
-                Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<Aria2cDownloadStatus>>(response);
+                JsonConvert.DeserializeObject<Aria2cResult<Aria2cDownloadStatus>>(response);
 
             if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
 
-
-            return result.Result;
-        }
-
-        public virtual string Pause(string gid)
-        {
-            _logger.Info("Pausando {0}.", gid);
-            string response = CreateRequest("aria2.forcePause", new[] {gid});
-
-            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
-
-            if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
-
-            return result.Result;
-        }
-
-        public virtual string Resume(string gid)
-        {
-            _logger.Info("Reiniciando {0}.", gid);
-            string response = CreateRequest("aria2.unpause", new[] {gid});
-
-            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
-
-            if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
-
-            return result.Result;
-        }
-
-        public virtual string Stop(string gid)
-        {
-            _logger.Info("Parando e removendo {0}.", gid);
-            string response = CreateRequest("aria2.forceRemove", new[] {gid});
-
-            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
-
-            if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
-
-            return result.Result;
-        }
-
-        public virtual string Remove(string gid)
-        {
-            _logger.Info("Excluindo dados de {0}.", gid);
-            string response = CreateRequest("aria2.removeDownloadResult", new[] {gid});
-
-            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
-
-            if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
 
             return result.Result;
         }
@@ -365,20 +360,20 @@ namespace Aria4net.Client
         }
 
         protected virtual string CreateRequest<TParameters>(string method,
-                                                                  TParameters parameters = default(TParameters))
+                                                            TParameters parameters = default(TParameters))
         {
             var jsonrequest = new JsonObject();
-			jsonrequest["id"] = _config.Id;
-			jsonrequest["method"] = method;
+            jsonrequest["id"] = _config.Id;
+            jsonrequest["method"] = method;
             if (null != parameters)
-            jsonrequest["params"] = parameters;
+                jsonrequest["params"] = parameters;
 
-			var webRequest = (HttpWebRequest)WebRequest.Create( _config.JsonrpcUrl );
-			webRequest.Method = "POST";
+            var webRequest = (HttpWebRequest) WebRequest.Create(_config.JsonrpcUrl);
+            webRequest.Method = "POST";
 
-			TextWriter writer = new StreamWriter( webRequest.GetRequestStream());
-			writer.Write( jsonrequest.ToString() );
-			writer.Close();
+            TextWriter writer = new StreamWriter(webRequest.GetRequestStream());
+            writer.Write(jsonrequest.ToString());
+            writer.Close();
 
             try
             {
@@ -393,19 +388,10 @@ namespace Aria4net.Client
             {
                 using (var reader = new StreamReader(wex.Response.GetResponseStream()))
                 {
-                    var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Aria2cResult<string>>(reader.ReadToEnd());
+                    var result = JsonConvert.DeserializeObject<Aria2cResult<string>>(reader.ReadToEnd());
                     throw new Aria2cException(result.Error.Code, result.Error.Message, wex);
                 }
-                
             }
-            
         }
-
-        public event EventHandler<Aria2cClientEventArgs> DownloadCompleted;
-        public event EventHandler<Aria2cClientEventArgs> DownloadPaused;
-        public event EventHandler<Aria2cClientEventArgs> DownloadError;
-        public event EventHandler<Aria2cClientEventArgs> DownloadStoped;
-        public event EventHandler<Aria2cClientEventArgs> DownloadStarted;
-        public event EventHandler<Aria2cClientEventArgs> DownloadProgress;
     }
 }

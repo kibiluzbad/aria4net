@@ -80,8 +80,7 @@ namespace Aria4net.IntegrationTests
 
             server.Start();
 
-            IClient client = new Aria2cJsonRpcClient(new RestClient(),
-                                                     config,
+            IClient client = new Aria2cJsonRpcClient(config,
                                                      watcher,
                                                      logger);
 
@@ -106,8 +105,7 @@ namespace Aria4net.IntegrationTests
 
             var logger = LogManager.GetCurrentClassLogger();
             
-            IClient client = new Aria2cJsonRpcClient(new RestClient(),
-                                                   config,
+            IClient client = new Aria2cJsonRpcClient(config,
                                                    new Aria2cWebSocketWatcher(config,
                                                                               logger).Connect(),
                                                    logger);

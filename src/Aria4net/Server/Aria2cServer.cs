@@ -8,25 +8,34 @@ using SuperSocket.ClientEngine;
 
 namespace Aria4net.Server
 {
+// ReSharper disable InconsistentNaming
     public class Aria2cServer : IServer, IDisposable
+// ReSharper restore InconsistentNaming
     {
-        private readonly IProcessStarter _processStarter;
-        private readonly IServerValidationRunner _serverValidationRunner;
         private readonly Aria2cConfig _config;
         private readonly Logger _logger;
+        private readonly IProcessStarter _processStarter;
+        private readonly IServerValidationRunner _serverValidationRunner;
         private readonly IServerWatcher _serverWatcher;
 
-        public Aria2cServer(IProcessStarter processStarter, 
-            IServerValidationRunner serverValidationRunner,
-            Aria2cConfig config,
-            Logger logger,
-            IServerWatcher serverWatcher)
+        public Aria2cServer(IProcessStarter processStarter,
+                            IServerValidationRunner serverValidationRunner,
+                            Aria2cConfig config,
+                            Logger logger,
+                            IServerWatcher serverWatcher)
         {
             _processStarter = processStarter;
             _serverValidationRunner = serverValidationRunner;
             _config = config;
             _logger = logger;
             _serverWatcher = serverWatcher;
+        }
+
+        public void Dispose()
+        {
+            if (null == _processStarter) return;
+
+            _processStarter.Dispose();
         }
 
         public void Start()
@@ -54,7 +63,6 @@ namespace Aria4net.Server
                     reset.Set();
                 };
 
-            
 
             _serverWatcher.Connect();
 
@@ -62,17 +70,6 @@ namespace Aria4net.Server
             {
                 throw new TimeoutException("Não foi possivel abrir uma conexão com sevidor.");
             }
-        }
-
-        protected virtual void AddStartValidationRules()
-        {
-            _logger.Info("Executando regras de validação da inicialização do servidor");
-            _serverValidationRunner.AddRule(GetRuleForJsonRpcPort());
-        }
-        
-        protected virtual IServerValidationRule GetRuleForJsonRpcPort()
-        {
-            return new CheckTcpPortRule {Port = _config.RpcPort};
         }
 
 
@@ -90,11 +87,15 @@ namespace Aria4net.Server
         public event EventHandler<EventArgs> Stoped;
         public event EventHandler<ErrorEventArgs> OnError;
 
-        public void Dispose()
+        protected virtual void AddStartValidationRules()
         {
-            if(null == _processStarter) return;
+            _logger.Info("Executando regras de validação da inicialização do servidor");
+            _serverValidationRunner.AddRule(GetRuleForJsonRpcPort());
+        }
 
-            _processStarter.Dispose();
+        protected virtual IServerValidationRule GetRuleForJsonRpcPort()
+        {
+            return new CheckTcpPortRule {Port = _config.RpcPort};
         }
     }
 }

@@ -9,7 +9,8 @@ namespace Aria4net.Common
         public IEnumerable<string> Execute(string path)
         {
             return from Match match
-                       in Regex.Matches(path, @"(?<token>[^\\]+)(\\+)?", RegexOptions.Compiled | RegexOptions.Singleline)
+                       in
+                       Regex.Matches(path, @"(?<token>[^\\]+)(\\+)?", RegexOptions.Compiled | RegexOptions.Singleline)
                    where match.Success
                    select match.Groups["token"].Value;
         }

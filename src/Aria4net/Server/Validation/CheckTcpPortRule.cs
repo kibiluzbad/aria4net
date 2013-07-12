@@ -13,7 +13,11 @@ namespace Aria4net.Server.Validation
             IPGlobalProperties ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
             TcpConnectionInformation[] tcpConnInfoArray = ipGlobalProperties.GetActiveTcpConnections();
 
-            if (tcpConnInfoArray.Any(tcpi => tcpi.LocalEndPoint.Port == Port && (tcpi.State == TcpState.Listen || tcpi.State == TcpState.Established)))
+            if (
+                tcpConnInfoArray.Any(
+                    tcpi =>
+                    tcpi.LocalEndPoint.Port == Port &&
+                    (tcpi.State == TcpState.Listen || tcpi.State == TcpState.Established)))
                 throw new TcpPortNotAvailableException(Port);
         }
     }

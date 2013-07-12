@@ -2,7 +2,9 @@
 
 namespace Aria4net.Common
 {
+// ReSharper disable InconsistentNaming
     public class Aria2cBittorrent
+// ReSharper restore InconsistentNaming
     {
         public string[] AnnounceList { get; set; }
         public string Comment { get; set; }

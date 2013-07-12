@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
 using Aria4net.Common;
 using SuperSocket.ClientEngine;
 
@@ -17,7 +15,7 @@ namespace Aria4net.Server.Watcher
                               Action<Aria2cClientEventArgs> error = null,
                               Action<Aria2cClientEventArgs> stoped = null,
                               Action<Aria2cClientEventArgs> paused = null);
-        
+
         IServerWatcher Connect();
         IServerWatcher Disconnect();
 

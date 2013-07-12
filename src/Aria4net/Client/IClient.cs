@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Aria4net.Common;
 
 namespace Aria4net.Client

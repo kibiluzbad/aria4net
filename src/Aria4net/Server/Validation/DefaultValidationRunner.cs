@@ -4,16 +4,16 @@ namespace Aria4net.Server.Validation
 {
     public class DefaultValidationRunner : IServerValidationRunner
     {
-        private ICollection<IServerValidationRule> _rules;
-        
+        private readonly ICollection<IServerValidationRule> _rules;
+
         public DefaultValidationRunner()
         {
             _rules = new HashSet<IServerValidationRule>();
         }
-        
+
         public void Run()
         {
-            foreach (var rule in _rules)
+            foreach (IServerValidationRule rule in _rules)
             {
                 rule.Execute();
             }

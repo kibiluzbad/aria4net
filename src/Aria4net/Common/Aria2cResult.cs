@@ -1,6 +1,8 @@
 ﻿namespace Aria4net.Common
 {
+// ReSharper disable InconsistentNaming
     public class Aria2cResult<TResult>
+// ReSharper restore InconsistentNaming
     {
         public string Id { get; set; }
         public string Jsonrpc { get; set; }

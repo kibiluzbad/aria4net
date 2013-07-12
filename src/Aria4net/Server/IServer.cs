@@ -5,9 +5,9 @@ namespace Aria4net.Server
 {
     public interface IServer
     {
+        bool IsRunning { get; }
         void Start();
         void Stop();
-        bool IsRunning { get; }
 
         event EventHandler<EventArgs> Started;
         event EventHandler<EventArgs> Stoped;

@@ -3,7 +3,9 @@ using Aria4net.Common;
 
 namespace Aria4net.Server.Watcher
 {
+// ReSharper disable InconsistentNaming
     public class Aria2cWebSocketMessage
+// ReSharper restore InconsistentNaming
     {
         public string Jsonrpc { get; set; }
         public string Method { get; set; }

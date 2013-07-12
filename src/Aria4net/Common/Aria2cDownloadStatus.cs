@@ -1,9 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Aria4net.Common
 {
+// ReSharper disable InconsistentNaming
     public class Aria2cDownloadStatus
+// ReSharper restore InconsistentNaming
     {
+        private const double EPSILON = 0.001;
         public string Gid { get; set; }
         public string Status { get; set; }
         public double TotalLength { get; set; }
@@ -26,25 +30,22 @@ namespace Aria4net.Common
 
         public bool Completed
         {
-            get { return 0 < CompletedLength && CompletedLength == TotalLength; }
+            get { return 0 < CompletedLength && Math.Abs(CompletedLength - TotalLength) < EPSILON; }
         }
 
         public double Progress
         {
-            get { return CompletedLength * 100 / TotalLength; }
-            
+            get { return CompletedLength*100/TotalLength; }
         }
 
         public double Remaining
         {
             get { return TotalLength - CompletedLength; }
-
         }
 
         public double Eta
         {
-            get { return (TotalLength - CompletedLength) / DownloadSpeed; }
-            
+            get { return (TotalLength - CompletedLength)/DownloadSpeed; }
         }
     }
 }
