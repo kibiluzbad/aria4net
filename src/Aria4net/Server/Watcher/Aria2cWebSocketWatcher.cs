@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading;
 using Aria4net.Common;
 using Aria4net.Exceptions;
@@ -94,6 +95,7 @@ namespace Aria4net.Server.Watcher
                              .Subscribe(
                                  message =>
                                      {
+                                         ISubject<Aria2cClientEventArgs> subject = new Subject<Aria2cClientEventArgs>();
                                          string gid = message.Params.FirstOrDefault().Gid;
 
                                          if (gid != keySelector()) return;
@@ -106,6 +108,7 @@ namespace Aria4net.Server.Watcher
                                                  break;
                                              case "aria2.onDownloadPause":
                                                  if (null != paused) paused(getData(gid));
+                                                 subject.OnCompleted();
                                                  if (null != token) token.Dispose();
                                                  break;
                                              case "aria2.onDownloadError":
@@ -113,6 +116,7 @@ namespace Aria4net.Server.Watcher
                                                  break;
                                              case "aria2.onBtDownloadComplete":
                                              case "aria2.onDownloadComplete":
+                                                 subject.OnCompleted();
                                                  if (null != token) token.Dispose();
                                                  if (null != completed)
                                                      try
@@ -129,6 +133,10 @@ namespace Aria4net.Server.Watcher
                                                  Aria2cClientEventArgs args = getData(gid);
 
                                                  if (null != started) started(args);
+                                                 
+                                                 subject.OnNext(args);
+
+                                                 if(null != progress)subject.Subscribe(progress);
 
                                                  if (args.Status.Completed)
                                                  {
@@ -138,7 +146,7 @@ namespace Aria4net.Server.Watcher
 
                                                  if (null == getProgress) return;
 
-                                                 token = StartReportingProgress(args, getProgress, progress, completed);
+                                                 token = StartReportingProgress(args, getProgress,completed, subject);
                                                  break;
                                          }
                                      },
@@ -174,16 +182,11 @@ namespace Aria4net.Server.Watcher
             _logger.Info("Websocket connection opened.");
         }
 
-        protected virtual IDisposable StartReportingProgress(Aria2cClientEventArgs args,
-                                                             Func<Aria2cClientEventArgs, Aria2cClientEventArgs>
-                                                                 getProgress,
-                                                             Action<Aria2cClientEventArgs> progress,
-                                                             Action<Aria2cClientEventArgs> completed)
+        protected virtual IDisposable StartReportingProgress(Aria2cClientEventArgs args, Func<Aria2cClientEventArgs, Aria2cClientEventArgs> getProgress, Action<Aria2cClientEventArgs> completed, ISubject<Aria2cClientEventArgs> subject)
         {
             _logger.Info("Observando progresso de {0}.", args.Status.Gid);
 
             ThreadPoolScheduler scheduler = Scheduler.ThreadPool;
-            IDisposable token = null;
 
             Action<Action> work = self =>
                 {
@@ -194,16 +197,14 @@ namespace Aria4net.Server.Watcher
                         if (eventArgs.Status.Completed)
                         {
                             completed(eventArgs);
-                            token.Dispose();
                             return;
                         }
-
-                        progress(eventArgs);
+                        subject.OnNext(eventArgs);
                     }
                     catch (Aria2cException aex)
                     {
                         _logger.DebugException(aex.Message, aex);
-                        token.Dispose();
+                        subject.OnError(aex);
                         return;
                     }
 
@@ -211,7 +212,7 @@ namespace Aria4net.Server.Watcher
                     self();
                 };
 
-            return token = scheduler.Schedule(work);
+            return scheduler.Schedule(work);
         }
     }
 }
