@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Aria4net.Common;
 
 namespace Aria4net.Client
@@ -16,6 +17,7 @@ namespace Aria4net.Client
         string Shutdown();
 
         Aria2cDownloadStatus GetStatus(string gid);
+        IEnumerable<Aria2cFile> GetFiles(string gid);
 
         event EventHandler<Aria2cClientEventArgs> DownloadCompleted;
         event EventHandler<Aria2cClientEventArgs> DownloadPaused;
@@ -23,5 +25,6 @@ namespace Aria4net.Client
         event EventHandler<Aria2cClientEventArgs> DownloadStoped;
         event EventHandler<Aria2cClientEventArgs> DownloadStarted;
         event EventHandler<Aria2cClientEventArgs> DownloadProgress;
+        
     }
 }

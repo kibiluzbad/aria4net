@@ -223,6 +223,13 @@ namespace Aria4net.Client
             return result.Result;
         }
 
+        public IEnumerable<Aria2cFile> GetFiles(string gid)
+        {
+            string response = CreateRequest("", new[] {gid});
+
+            return JsonConvert.DeserializeObject<IEnumerable<Aria2cFile>>(response);
+        }
+
         public virtual string Pause(string gid)
         {
             _logger.Info("Pausando {0}.", gid);
