@@ -80,10 +80,11 @@ namespace Aria4net.Sample
                             e.Status.Status,
                             (e.Status.Remaining).ToMegaBytes(),
                             e.Status.Gid);
+                        if (!string.IsNullOrEmpty(eventArgs.Status.Files.FirstOrDefault().Path)) 
+                            gid2 = client.AddTorrentFile(eventArgs.Status.Files.FirstOrDefault().Path, new[] { 1 });
                     }
-                    gid2 = client.AddTorrentFile(eventArgs.Status.Files.FirstOrDefault().Path);
-                    client.Pause(gid2);
-                    client.GetFiles();
+
+                    
                 };
 
             gid1 = client.AddUrl(url1);

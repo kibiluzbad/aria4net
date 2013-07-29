@@ -124,6 +124,7 @@ namespace Aria4net.Client
                                                    DownloadError(this, args);
                                            });
 
+           
             string response = CreateRequest("aria2.addUri", new List<string[]>
                 {
                     new[] {url}
@@ -138,7 +139,7 @@ namespace Aria4net.Client
             return newGid;
         }
 
-        public virtual string AddTorrentFile(string path)
+        public virtual string AddTorrentFile(string path, int[] indexes = null)
         {
             byte[] torrent = GetTorrent(path);
             string newGid = string.Empty;
@@ -177,7 +178,12 @@ namespace Aria4net.Client
                                OnStoped,
                                OnPaused);
 
-            string response = CreateRequest("aria2.addTorrent", new[] {Convert.ToBase64String(torrent)});
+            string response = CreateRequest("aria2.addTorrent", new[]
+                {
+                    Convert.ToBase64String(torrent),
+                    new List<string>(),
+                    (object) new {selectfile = indexes[0].ToString()}
+                });
 
             var result = JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
 
@@ -225,9 +231,10 @@ namespace Aria4net.Client
 
         public IEnumerable<Aria2cFile> GetFiles(string gid)
         {
-            string response = CreateRequest("", new[] {gid});
+            string response = CreateRequest("aria2.getFiles", new[] { gid });
 
-            return JsonConvert.DeserializeObject<IEnumerable<Aria2cFile>>(response);
+            var result = JsonConvert.DeserializeObject<Aria2cResult<IEnumerable<Aria2cFile>>>(response);
+            return result.Result;
         }
 
         public virtual string Pause(string gid)
@@ -369,6 +376,12 @@ namespace Aria4net.Client
         protected virtual string CreateRequest<TParameters>(string method,
                                                             TParameters parameters = default(TParameters))
         {
+            IDictionary<string, string> dictionary = new Dictionary<string, string>
+                {
+                    {"selectfile","select-file"}
+                };
+
+            
             var jsonrequest = new JsonObject();
             jsonrequest["id"] = _config.Id;
             jsonrequest["method"] = method;
@@ -379,7 +392,10 @@ namespace Aria4net.Client
             webRequest.Method = "POST";
 
             TextWriter writer = new StreamWriter(webRequest.GetRequestStream());
-            writer.Write(jsonrequest.ToString());
+            string json = jsonrequest.ToString();
+            json = dictionary.Aggregate(json, (current, item) => current.Replace(item.Key, item.Value));
+
+            writer.Write(json);
             writer.Close();
 
             try

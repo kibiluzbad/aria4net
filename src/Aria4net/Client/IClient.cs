@@ -8,7 +8,7 @@ namespace Aria4net.Client
     {
         string AddUrl(string url);
         string AddTorrent(string url);
-        string AddTorrentFile(string path);
+        string AddTorrentFile(string path, int[] indexes = null);
         string Pause(string gid);
         string Resume(string gid);
         string Stop(string gid);
@@ -25,6 +25,7 @@ namespace Aria4net.Client
         event EventHandler<Aria2cClientEventArgs> DownloadStoped;
         event EventHandler<Aria2cClientEventArgs> DownloadStarted;
         event EventHandler<Aria2cClientEventArgs> DownloadProgress;
+
         
     }
 }

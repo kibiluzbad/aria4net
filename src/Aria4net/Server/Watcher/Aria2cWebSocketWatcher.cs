@@ -103,13 +103,14 @@ namespace Aria4net.Server.Watcher
                                          switch (message.Method)
                                          {
                                              case "aria2.onDownloadStop":
+                                                 subject.OnCompleted();
                                                  if (null != stoped) stoped(getData(gid));
                                                  if (null != token) token.Dispose();
                                                  break;
                                              case "aria2.onDownloadPause":
-                                                 if (null != paused) paused(getData(gid));
                                                  subject.OnCompleted();
                                                  if (null != token) token.Dispose();
+                                                 if (null != paused) paused(getData(gid));
                                                  break;
                                              case "aria2.onDownloadError":
                                                  if (null != error) error(getData(gid));
