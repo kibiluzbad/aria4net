@@ -7,7 +7,7 @@ namespace Aria4net.Client
     public interface IClient
     {
         string AddUrl(string url);
-        string AddTorrent(string url);
+        string AddTorrent(string url, int[] indexes = null);
         string AddTorrentFile(string path, int[] indexes = null);
         string Pause(string gid);
         string Resume(string gid);

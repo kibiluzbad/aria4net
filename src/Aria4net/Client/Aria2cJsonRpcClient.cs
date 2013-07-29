@@ -56,7 +56,7 @@ namespace Aria4net.Client
                                                }
                                                catch (Aria2cException aex)
                                                {
-                                                   _logger.ErrorException(aex.Message, aex);
+                                                   _logger.DebugException(aex.Message, aex);
                                                }
 
                                                if (null != DownloadCompleted)
@@ -81,7 +81,7 @@ namespace Aria4net.Client
             return newGid;
         }
 
-        public virtual string AddTorrent(string url)
+        public virtual string AddTorrent(string url, int[] indexes = null)
         {
             string newGid = string.Empty;
             IDisposable token = null;
@@ -98,7 +98,7 @@ namespace Aria4net.Client
                                                    "Download do arquivo torrent url {0} com gid {1} concluido.",
                                                    args.Url, args.Status.Gid);
 
-                                               string torrentPath = args.Status.Files.FirstOrDefault().Path;
+                                               string torrentPath = args.Status.Files.First().Path;
 
                                                try
                                                {
@@ -111,7 +111,7 @@ namespace Aria4net.Client
 
                                                if (null != token) token.Dispose();
 
-                                               AddTorrentFile(torrentPath);
+                                               AddTorrentFile(torrentPath,indexes);
                                            },
                                        error: args =>
                                            {
@@ -182,7 +182,7 @@ namespace Aria4net.Client
                 {
                     Convert.ToBase64String(torrent),
                     new List<string>(),
-                    (object) new {selectfile = indexes[0].ToString()}
+                    indexes != null ? (object) new {selectfile = string.Join(",",indexes.Select(c=>c.ToString()).ToArray())} : null
                 });
 
             var result = JsonConvert.DeserializeObject<Aria2cResult<string>>(response);

@@ -61,34 +61,22 @@ namespace Aria4net.Sample
                 "http://download.warface.levelupgames.com.br/Warface/Installer/Instalador_Client_LevelUp_1.0.34.006.torrent";
 
             var gid1 = "";
-            var gid2 = "";
 
-         
-            client.DownloadCompleted += (sender, eventArgs) =>
-                {
-                    Console.WriteLine("Download concluido {0}", eventArgs.Status.Gid);
-                    if (eventArgs.Status.Gid == gid1)
-                    {
-                        
-                        client.DownloadProgress += (o, e) => Console.WriteLine(
-                            "\r{7} Status {5} | Progress {0:N1} % | Speed {1:N2} Mb/s | Eta {2:N0} s | Downloaded {3:N2}  Mb | Remaining {6:N2} Mb | Total {4:N2} Mb",
-                            e.Status.Progress,
-                            e.Status.DownloadSpeed.ToMegaBytes(),
-                            e.Status.Eta,
-                            e.Status.CompletedLength.ToMegaBytes(),
-                            e.Status.TotalLength.ToMegaBytes(),
-                            e.Status.Status,
-                            (e.Status.Remaining).ToMegaBytes(),
-                            e.Status.Gid);
-                        if (!string.IsNullOrEmpty(eventArgs.Status.Files.FirstOrDefault().Path)) 
-                            gid2 = client.AddTorrentFile(eventArgs.Status.Files.FirstOrDefault().Path, new[] { 1 });
-                    }
+            client.DownloadCompleted +=
+                (sender, eventArgs) => Console.WriteLine("Download concluido {0}", eventArgs.Status.Gid);
 
-                    
-                };
+            client.DownloadProgress += (o, e) => Console.WriteLine(
+                "\r{7} Status {5} | Progress {0:N1} % | Speed {1:N2} Mb/s | Eta {2:N0} s | Downloaded {3:N2}  Mb | Remaining {6:N2} Mb | Total {4:N2} Mb",
+                e.Status.Progress,
+                e.Status.DownloadSpeed.ToMegaBytes(),
+                e.Status.Eta,
+                e.Status.CompletedLength.ToMegaBytes(),
+                e.Status.TotalLength.ToMegaBytes(),
+                e.Status.Status,
+                (e.Status.Remaining).ToMegaBytes(),
+                e.Status.Gid);
 
-            gid1 = client.AddUrl(url1);
-            //gid2 = client.AddTorrent(url2);
+            gid1 = client.AddTorrent(url1, new[] {1});
 
             Console.ReadKey();
 
