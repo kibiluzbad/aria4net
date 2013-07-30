@@ -56,6 +56,8 @@ namespace Aria4net.Sample
             IClient client = new Aria2cJsonRpcClient(config,
                                                      watcher,
                                                      logger);
+            
+            client.ChangeDestinationPath(@"C:\temp\torrents");
 
             var url1 =
                 "http://download.warface.levelupgames.com.br/Warface/Installer/Instalador_Client_LevelUp_1.0.34.006.torrent";

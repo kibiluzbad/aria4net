@@ -110,8 +110,18 @@ namespace Aria4net.Client
                                                }
 
                                                if (null != token) token.Dispose();
-
-                                               AddTorrentFile(torrentPath,indexes);
+                                               
+                                               try
+                                               {
+                                                   AddTorrentFile(torrentPath, indexes);
+                                               }
+                                               catch (Exception ex)
+                                               {
+                                                   OnError(args);
+                                                   _logger.FatalException(ex.Message, ex);
+                                               
+                                               }
+                                               
                                            },
                                        error: args =>
                                            {
@@ -178,12 +188,7 @@ namespace Aria4net.Client
                                OnStoped,
                                OnPaused);
 
-            string response = CreateRequest("aria2.addTorrent", new[]
-                {
-                    Convert.ToBase64String(torrent),
-                    new List<string>(),
-                    indexes != null ? (object) new {selectfile = string.Join(",",indexes.Select(c=>c.ToString()).ToArray())} : null
-                });
+            string response = CreateRequest("aria2.addTorrent", GetParameters(indexes, torrent));
 
             var result = JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
 
@@ -192,6 +197,22 @@ namespace Aria4net.Client
             newGid = result.Result;
 
             return newGid;
+        }
+
+        private static object[] GetParameters(IEnumerable<int> indexes, byte[] torrent)
+        {
+
+            return indexes != null
+                       ? new object[]
+                           {
+                               Convert.ToBase64String(torrent),
+                               new List<string>(),
+                               new {selectfile = string.Join(",", indexes.Select(c => c.ToString()).ToArray())}
+                           }
+                       : new object[]
+                           {
+                               Convert.ToBase64String(torrent)
+                           };
         }
 
         public string Purge()
@@ -285,6 +306,18 @@ namespace Aria4net.Client
             return result.Result;
         }
 
+        public virtual string ChangeDestinationPath(string path)
+        {
+            _logger.Info("Alterado caminho de destino dos downloads para {0}.", path);
+            string response = CreateRequest("aria2.changeGlobalOption", new object[] { new{dir = path} });
+
+            var result = JsonConvert.DeserializeObject<Aria2cResult<string>>(response);
+
+            if (null != result.Error) throw new Aria2cException(result.Error.Code, result.Error.Message);
+
+            return result.Result;
+        }
+
         public event EventHandler<Aria2cClientEventArgs> DownloadCompleted;
         public event EventHandler<Aria2cClientEventArgs> DownloadPaused;
         public event EventHandler<Aria2cClientEventArgs> DownloadError;
@@ -315,7 +348,14 @@ namespace Aria4net.Client
 
         protected virtual void OnError(Aria2cClientEventArgs args)
         {
-            Remove(args.Status.Gid);
+            try
+            {
+                Remove(args.Status.Gid);
+            }
+            catch (Aria2cException aex)
+            {
+                _logger.DebugException(aex.Message,aex);
+            }
 
             _logger.Debug("Download da url {0} com gid {1} com erro.", args.Url, args.Status.Gid);
 

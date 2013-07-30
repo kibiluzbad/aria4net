@@ -15,6 +15,7 @@ namespace Aria4net.Client
         string Remove(string gid);
         string Purge();
         string Shutdown();
+        string ChangeDestinationPath(string path);
 
         Aria2cDownloadStatus GetStatus(string gid);
         IEnumerable<Aria2cFile> GetFiles(string gid);
