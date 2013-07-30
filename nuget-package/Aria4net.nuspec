@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Aria4net</id>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <authors>kibiluzbad</authors>
     <owners>kibiluzbad</owners>
     <licenseUrl>http://bitbucket.org/kibiluzbad/xango/src/740b974898b9/LICENSE.txt</licenseUrl>

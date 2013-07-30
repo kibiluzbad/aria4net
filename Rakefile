@@ -69,3 +69,12 @@ task :publish do |msb|
     FileUtils.cp_r FileList["src/**/#{@env_buildconfigname}/*.dll", "src/**/*.ps1"].exclude(/obj\//).exclude(/.Tests/), "#{@env_buildfolderpath}/lib"
 	FileUtils.cp_r FileList["tools/aria2-1.16.3-win-32bit-build1/*"], "#{@env_buildfolderpath}/lib/tools/aria2-1.16.3-win-32bit-build1"
 end
+
+desc "create the nuget package"
+nugetpack :pack => [:buildIt, :publish] do |nuget|
+   nuget.command     = "tools/nuget.exe"
+   nuget.nuspec      = "nuget-package/Aria4net.nuspec"
+   nuget.base_folder = "nuget-package/"
+   nuget.output      = "nuget-package/"
+   nuget.symbols     = true
+end
