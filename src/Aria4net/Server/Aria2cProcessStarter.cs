@@ -31,7 +31,7 @@ namespace Aria4net.Server
         {
             try
             {
-                Logger.Info("Processo executou com código {0}.", sender.ExitCode);
+                Logger.Info("Processo executou com codigo {0}.", sender.ExitCode);
                 if (0 <= sender.ExitCode)
                     throw new Aria2cException(sender.ExitCode, sender.StandardError.ReadToEnd());
             }
@@ -52,7 +52,7 @@ namespace Aria4net.Server
 
             return
                 string.Format(
-                    "--enable-rpc --dir=\"{0}\" --quiet --listen-port={1} --rpc-listen-port={2} --follow-torrent=false --file-allocation=trunc -c --show-console-readout=false --stop-with-process={3} --max-concurrent-downloads={4} --max-overall-download-limit={5} --max-overall-upload-limit={6}",
+                    "--enable-rpc --dir=\"{0}\" --quiet --listen-port={1} --rpc-listen-port={2} --follow-torrent=false --file-allocation=trunc -c --show-console-readout=false --stop-with-process={3} --max-concurrent-downloads={4} --max-overall-download-limit={5} --max-overall-upload-limit={6} --auto-save-interval=1",
                     DownloadedFilesDirPath().Trim(),
                     _config.Port,
                     _config.RpcPort,
